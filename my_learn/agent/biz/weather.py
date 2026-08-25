@@ -4,10 +4,10 @@ from datetime import datetime
 
 import requests
 
-from config.env_config import config
-from config.logger_core import log, trace
-from exception.AgentException import AgentException
-from exception.error_code import ErrorCode
+from my_learn.config.env_config import config
+from my_learn.config.logger_core import log
+from my_learn.exception.AgentException import AgentException
+from my_learn.exception.error_code import ErrorCode
 
 
 @dataclass

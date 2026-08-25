@@ -1,8 +1,8 @@
 import time
 from datetime import datetime
 
-from agent.init.agent import Agent
-from config.logger_core import log, trace
+from my_learn.agent.init.agent import Agent
+from my_learn.config.logger_core import log, trace
 
 
 @trace

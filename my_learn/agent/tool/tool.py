@@ -1,5 +1,5 @@
 from langchain.tools import tool
-from agent.biz.weather import Weather
+from my_learn.agent.biz.weather import Weather
 
 
 @tool

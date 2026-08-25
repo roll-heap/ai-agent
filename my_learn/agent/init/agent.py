@@ -3,10 +3,10 @@ import logging
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 
-from agent.tool.tool import weather_tool
-from config.env_config import config
-from exception.AgentException import AgentException
-from exception.error_code import ErrorCode
+from my_learn.agent.tool.tool import weather_tool
+from my_learn.config.env_config import config
+from my_learn.exception.AgentException import AgentException
+from my_learn.exception.error_code import ErrorCode
 
 
 class Agent:
