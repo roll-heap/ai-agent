@@ -1,4 +1,4 @@
-from my_learn.exception.error_code import ErrorCode
+from my_agent.exception.error_code import ErrorCode
 
 
 class AgentException(BaseException):

@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from logcore import get_logger, set_correlation_id
 
-from my_learn.config.env_config import config, BASE_DIR
+from my_agent.config.env_config import config, BASE_DIR
 
 
 class Logger:
