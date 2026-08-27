@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
 from langchain_openai import ChatOpenAI
 
 from agent.tool.tool import tools
@@ -44,14 +45,14 @@ class Agent:
         # ============================================================
         # 第四部分：接入大模型（DeepSeek）
         # ============================================================
-        return ChatOpenAI(
+        return init_chat_model(
             model=settings.model,
+            model_provider="openai",    # 告诉 LangChain：请使用 OpenAI Provider 的接口协议来初始化和调用这个模型。
             api_key=settings.api_key.get_secret_value(),
             base_url=settings.base_url,
             temperature=settings.temperature,  # 0 表示输出更确定，1 表示更随机
             timeout=settings.timeout,
             max_retries=settings.max_retries,
-            streaming=True,
         )
 
 
@@ -71,6 +72,19 @@ class Agent:
         try:
             react_system_prompt = Agent.get_system_prompt()
             llm = Agent.__init_llm()
+            # 调试是否传入模型工具
+            # print("LLM:", llm)
+            # print("TOOLS:", tools)
+            # bound_llm = llm.bind_tools(tools)
+            # print("BOUND LLM:", bound_llm)
+
+            # 调试模型是否调用了tool calling协议
+            # result = bound_llm.invoke("查询上海现在的实时天气，必须使用 weather_tool 获取实时数据。")
+            # print("========== RESULT ==========")
+            # print("content:", result.content)
+            # print("tool_calls:", result.tool_calls)
+            # print("additional_kwargs:", result.additional_kwargs)
+            # print("============================")
             return create_agent(
                 model=llm,
                 tools=tools,
@@ -82,19 +96,25 @@ class Agent:
 
     @staticmethod
     def get_system_prompt():
-        return """你是一个智能助手。
+        tool_descriptions = "\n".join(
+            f"- {t.name}: {t.description}"
+            for t in tools
+        )
+        return f"""你是一个智能助手。
 
-                你可以使用提供的工具来完成用户任务。
+                你可以使用以下工具：
 
-                工具使用规则：
-                1. 需要实时数据时，必须调用对应工具，不能自己编造数据。
-                2. 计算数学表达式时，优先使用计算器工具。
-                3. 查询天气时，使用天气工具。
-                4. 查询当前时间时，使用当前时间工具。
-                5. 需要读取网页时，使用网页抓取工具。
-                6. 需要读取文件时，使用文件读取工具。
-                7. 需要写入文件时，使用文件写入工具。
-                8. 工具返回结果后，根据工具结果回答用户。
-                9. 不要向用户暴露内部推理过程。"""
+                {tool_descriptions}
 
-# 帮助用户查询任意城市的实时天气信息，计算数学运算，获取最新时间"""
+                请根据用户的问题判断是否需要调用工具。
+
+                如果需要工具：
+                1. 选择合适的工具
+                2. 正确填写工具参数
+                3. 根据工具返回结果回答用户
+                4. 不要编造工具没有返回的数据
+
+                如果不需要工具，可以直接回答用户。
+
+                工具调用由系统负责执行，不需要输出 Thought、Action、
+                Action Input、Observation 等中间格式"""

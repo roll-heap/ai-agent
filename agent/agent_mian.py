@@ -29,19 +29,29 @@ def execute_agent(agent, question: str, messages: list):
                         if isinstance(content, str):
                             print(content, end="", flush=True )
                             final_answer += content
+                # elif kind == "on_chat_model_end":
+                    # output = event["data"]["output"]
+                    #
+                    # print("\n========== CHAT MODEL END ==========")
+                    # print("content:", output.content)
+                    # print("tool_calls:", output.tool_calls)
+                    # print("additional_kwargs:", output.additional_kwargs)
+                    # print("====================================")
                 # ==========================
                 # Tool 开始
                 # ==========================
                 elif kind == "on_tool_start":
                     tool_name = event.get("name","未知工具")
                     tool_input = event["data"].get("input",{})
-                    print(f"\n🔧 调用工具：{tool_name}" f"\n   参数：{tool_input}")
+                    print(f"\n🔧 调用工具：{tool_name}" f"\n   参数：{tool_input}", flush=True)
+                    log.info(f"\n🔧 调用工具：{tool_name}" f"\n   参数：{tool_input}")
                 # ==========================
                 # Tool 结束
                 # ==========================
                 elif kind == "on_tool_end":
                     output = event["data"].get("output", "" )
-                    print(f"\n✅ 工具返回：" f"{str(output)[:200]}")
+                    print(f"\n✅ 工具返回：" f"{str(output)[:200]}\n", flush=True)
+                    log.info(f"\n✅ 工具返回：" f"{str(output)[:200]}\n")
             # ==========================
             # Agent 整体执行完成
             # ==========================
