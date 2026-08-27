@@ -24,7 +24,8 @@ class Logger:
             correlation_id="N/A",                           # 可选：设置一个全局关联ID,设置默认值
             max_file_size=10 * 1024 * 1024,                 # 单个日志文件最大10MB
             backup_count=5,                                 # 保留最近5个备份文件
-            redact_fields={"password", "secret", "api_key"} # 自动脱敏这些字段
+            redact_fields={"password", "secret", "api_key"}, # 自动脱敏这些字段
+            console = False,                                # 关闭控制台输出，输出到日志文件中
         )
 
     @staticmethod
