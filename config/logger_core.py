@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from logcore import get_logger, set_correlation_id
 
-from my_agent.config.env_config import config, BASE_DIR
+from config.config import settings, BASE_DIR
 
 
 class Logger:
@@ -17,10 +17,10 @@ class Logger:
         :return: LogCoreLogger
         """
         return get_logger(
-            name=config.app_name,                           # 日志记录器名称
-            level=config.log_level,                         # 日志级别: DEBUG, INFO, WARNING, ERROR, CRITICAL
+            name=settings.app_name,                           # 日志记录器名称
+            level=settings.log_level,                         # 日志级别: DEBUG, INFO, WARNING, ERROR, CRITICAL
             # json=True,                                    # 是否输出 JSON 格式，False 输出人类可读格式
-            file=BASE_DIR / config.log_file,                # 可选：将日志输出到文件
+            file=BASE_DIR / settings.log_file,                # 可选：将日志输出到文件
             correlation_id="N/A",                           # 可选：设置一个全局关联ID,设置默认值
             max_file_size=10 * 1024 * 1024,                 # 单个日志文件最大10MB
             backup_count=5,                                 # 保留最近5个备份文件

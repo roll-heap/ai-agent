@@ -23,3 +23,6 @@ pip install pydantic-settings
 
 # 安装fastAPI，构建web应用
 pip install fastapi uvicorn
+
+# 抓取页面
+pip install beautifulsoup4
