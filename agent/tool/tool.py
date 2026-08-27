@@ -2,17 +2,27 @@
 # 3、 LangChain Tool 封装Tool
 # ============================================================
 from langchain.tools import tool
+from pydantic import BaseModel
 
 from agent.tool.impl.calculater import calculater
 from agent.tool.impl.date_current import CurrentTime
+from agent.tool.impl.directory_operate import DirectoryOperate
 from agent.tool.impl.file_operate import FileOperate
 from agent.tool.impl.weather import Weather
 from agent.tool.impl.web_fetcher import WebFetcher
+from config.logger_core import log
 
 
 # ============================================================
 # 天气查询
 # ============================================================
+class WeatherResult(BaseModel):
+    success: bool
+    weather: Weather | None = None
+    error: str | None = None
+
+
+
 """
 description=...
 不是普通注释。
@@ -27,16 +37,18 @@ city：城市名称，例如“上海”“北京”“New York”。
 当前天气状况、温度、风速和查询时间。
 如果要回复今日时间，请调用获取当前时间工具
 当用户询问天气时使用此工具。""")
-def weather_tool(city):
+def weather_tool(city) -> WeatherResult:
     """
      查询某个城市的天气。
      参数:
          city: 城市名称，例如 "上海"
      """
     try:
-        return Weather.query_weather(city)
+        weather = Weather.query_weather(city)
+        return WeatherResult(success=True, weather=weather)
     except Exception as e:
-        return f"查询天气异常：{str(e)}"
+        log.info(f"查询天气失败: {e}")
+        return WeatherResult(success=False, error=str(e))
 
 
 # ============================================================
@@ -104,11 +116,25 @@ def write_file_tool(file_path: str, messages:list):
         return f"写入文件失败，失败信息:{str(e)}"
 
 
+@tool(name_or_callable="list_directory_tool",description="""获取指定目录中的文件和子目录。
+参数：
+directory_path：需要查看的目录路径。
+当用户要求查看目录内容、查看文件列表、
+查找目录中的文件时使用此工具。
+"""
+)
+def list_directory_tool(directory_path: str) -> str:
+    try:
+        return DirectoryOperate.list_directory(directory_path)
+    except Exception as e:
+        return f"读取目录失败：{str(e)}"
+
 tools = [
     weather_tool,
     calculate_tool,
     current_time_tool,
     fetch_webpage_tool,
     read_file_tool,
-    write_file_tool
+    write_file_tool,
+    list_directory_tool
 ]

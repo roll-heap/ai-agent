@@ -2,8 +2,10 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime
+from pydoc import describe
 
 import requests
+from pydantic import Field
 
 from exception.agent_exception import ErrorEnum, AgentException
 
@@ -13,11 +15,11 @@ from exception.agent_exception import ErrorEnum, AgentException
 # ============================================================
 @dataclass
 class Weather:
-    city: str
-    weather: str
-    temperature: str
-    wind: str
-    query_time: str
+    city: str = Field(description="城市")
+    weather: str = Field(description="天气")
+    temperature: str = Field(description="温度")
+    wind: str = Field(description="风速，单位：km/h")
+    query_time: str = Field(description="天气查询时间")
 
     @classmethod
     def api_weather(cls, city: str) -> "Weather":
@@ -45,16 +47,14 @@ class Weather:
     # 2. 业务函数（供 Agent 调用）
     # ============================================================
     @staticmethod
-    def query_weather(city_name: str):
+    def query_weather(city_name: str) -> "Weather":
         try:
             data = Weather.api_weather(city_name)
-            return (
-                f"城市：{data.city}\n"
-                f"天气：{data.weather}\n"
-                f"温度：{data.temperature}°C\n"
-                f"风速：{data.wind} km/h\n"
-                f"查询时间：{data.query_time}"
-            )
+            return Weather(city=data.city,
+            weather=data.weather,
+            temperature=data.temperature,
+            wind=data.wind,
+            query_time=data.query_time)
         except Exception as e:
             logging.exception(f"查询天气失败,{e}")
             raise AgentException(ErrorEnum.WEATHER_ERR)
