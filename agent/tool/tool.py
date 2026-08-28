@@ -77,46 +77,6 @@ def fetch_webpage_tool(url: str) -> dict:
     model = WebFetcherService.web_fetcher(url)
     return model.model_dump(mode="json")
 
-
-@tool(
-    name_or_callable="read_file_tool",
-    description="""
-读取指定路径的文件内容。
-
-参数：
-file_path：文件路径。
-
-当用户要求读取文件内容时使用此工具。
-"""
-)
-def read_file_tool(file_path: str) -> dict:
-    model = FileOperateService.read_file(file_path)
-    return model.model_dump(mode="json")
-
-
-@tool(
-    name_or_callable="write_file_tool",
-    description="""
-将文本写入指定文件。
-
-参数：
-file_path：文件路径。
-messages：需要写入的文本内容列表。
-
-当用户明确要求创建或写入文件时使用此工具。
-"""
-)
-def write_file_tool(
-    file_path: str,
-    messages: list
-) -> dict:
-    model = FileOperateService.write_file(
-        file_path,
-        messages
-    )
-    return model.model_dump(mode="json")
-
-
 @tool(
     name_or_callable="list_directory_tool",
     description="""
@@ -143,6 +103,38 @@ def list_directory_tool(
     )
     return model.model_dump(mode="json")
 
+@tool(
+    name_or_callable="read_file_tool",
+    description="""
+读取指定路径的文件内容。
+
+参数：
+file_path：文件路径。
+
+当用户要求读取文件内容时使用此工具。
+不适用于 PDF、图片、Word、Excel 等二进制或需要专用解析器的文件。
+"""
+)
+def read_file_tool(file_path: str) -> dict:
+    model = FileOperateService.read_file(file_path)
+    return model.model_dump(mode="json")
+
+
+@tool(
+    name_or_callable="write_file_tool",
+    description="""
+将文本写入指定文件。
+
+参数：
+file_path：文件路径。
+messages：需要写入的文本内容列表。
+
+当用户明确要求创建或写入文件时使用此工具。
+"""
+)
+def write_file_tool(file_path: str, content: str) -> dict:
+    model = FileOperateService.write_file( file_path, content)
+    return model.model_dump(mode="json")
 
 @tool(
     name_or_callable="get_file_metadata",

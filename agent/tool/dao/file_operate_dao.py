@@ -19,7 +19,7 @@ class FileOperateDao:
         return file.read_text(encoding="utf-8")
 
     @staticmethod
-    def write_file(file_path:str, messages: list):
+    def write_file(file_path:str, content: str):
         """
         写文件
         """
@@ -27,9 +27,8 @@ class FileOperateDao:
         # 确保父目录存在
         file.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file, "w", encoding="utf-8") as file:
-            for message in messages:
-                file.write(f"{message}\n")
+        with open(file, "w", encoding="utf-8") as f:
+            f.write(f"{content}\n")
         return f"文件写入成功 {file_path}"
 
     @staticmethod

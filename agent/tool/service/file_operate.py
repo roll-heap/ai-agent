@@ -18,12 +18,12 @@ class FileOperateService:
             return ToolResponseModel(success=False, msg=str(e))
 
     @staticmethod
-    def write_file(file_path:str, messages: list) -> ToolResponseModel:
+    def write_file(file_path:str, content: str) -> ToolResponseModel:
         """
         写文件
         """
         try:
-            result = FileOperateDao.write_file(file_path, messages)
+            result = FileOperateDao.write_file(file_path, content)
             return ToolResponseModel(data=result)
         except Exception as e:
             return ToolResponseModel(success=False, msg=f"文件写入失败：{str(e)}")
