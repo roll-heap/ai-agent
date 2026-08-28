@@ -50,8 +50,8 @@ def execute_agent(agent, question: str, messages: list):
                 # ==========================
                 elif kind == "on_tool_end":
                     output = event["data"].get("output", "" )
-                    print(f"\n✅ 工具返回：" f"{str(output)[:200]}\n", flush=True)
-                    log.info(f"\n✅ 工具返回：" f"{str(output)[:200]}\n")
+                    print(f"\n✅ 工具返回：" f"{str(output)}\n", flush=True)
+                    log.info(f"\n✅ 工具返回：" f"{str(output)}\n")
             # ==========================
             # Agent 整体执行完成
             # ==========================

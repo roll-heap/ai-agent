@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class CurrentTime:
+class CurrentTimeDao:
     @staticmethod
     def current_time() -> str:
         """

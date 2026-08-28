@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
-class WebFetcher:
+class WebFetcherDao:
     @staticmethod
-    def web_fetcher(url: str, max_length:int=2000):
+    def web_fetcher(url: str, max_length:int=2000) -> str:
         """
         抓取网页内容，返回纯文本（限制长度）
         """
@@ -24,10 +24,10 @@ class WebFetcher:
 
             return f"网页 {url} 的内容：\n{text}"
         except requests.exceptions.Timeout:
-            return "网页请求超时，请稍后重试"
+            raise ValueError("网页请求超时，请稍后重试")
         except requests.exceptions.ConnectionError:
-            return "网络连接失败，请检查 URL"
+            raise ValueError("网络连接失败，请检查 URL")
         except requests.exceptions.HTTPError as e:
-            return f"网页请求失败：{str(e)}"
+            raise ValueError(f"网页请求失败：{str(e)}")
         except Exception as e:
-            return f"抓取失败，失败原因：{str(e)}"
+            raise ValueError(f"抓取失败，失败原因：{str(e)}")
