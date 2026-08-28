@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from exception.agent_exception import AgentException
+
 
 class DirectoryOperateDao:
     #Agent
@@ -21,9 +23,9 @@ class DirectoryOperateDao:
          """
         directory = Path(directory_path)
         if not directory.exists():
-            return f"目录不存在：{directory_path}"
+            raise AgentException(f"目录不存在：{directory_path}")
         if not directory.is_dir():
-            return f"不是目录：{directory_path}"
+            raise AgentException(f"不是目录：{directory_path}")
         if recursive:
             items = directory.rglob("*")
         else:
@@ -42,5 +44,5 @@ class DirectoryOperateDao:
                 result.append(f"[目录]{relative_path}")
 
         if not result:
-            return "目录为空"
+            raise AgentException("目录为空")
         return "\n".join(result)

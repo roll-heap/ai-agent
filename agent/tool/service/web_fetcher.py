@@ -1,24 +1,18 @@
-import requests
-from bs4 import BeautifulSoup
-
 from agent.tool.dao.web_fetcher_dao import WebFetcherDao
+from agent.tool.model.tool_response_model import ToolResponseModel
+from exception.agent_exception import AgentException
 
 
 class WebFetcherService:
     @staticmethod
-    def web_fetcher(url: str, max_length:int=2000) -> dict:
+    def web_fetcher(url: str, max_length:int=2000) -> ToolResponseModel:
         """
         抓取网页内容，返回纯文本（限制长度）
         """
         try:
             data = WebFetcherDao.web_fetcher(url, max_length)
-            return {
-                "success": True,
-                "data": data
-            }
+            return ToolResponseModel(data=data)
+        except AgentException as e:
+            return ToolResponseModel(success=False, msg=e.msg)
         except Exception as e:
-            return {
-                "success": False,
-                "data": f"抓取网页异常：{str(e)}"
-            }
-
+            return ToolResponseModel(success=False, msg=str(e))

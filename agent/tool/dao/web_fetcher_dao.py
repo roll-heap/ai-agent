@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from exception.agent_exception import AgentException
+
 
 class WebFetcherDao:
     @staticmethod
@@ -24,10 +26,10 @@ class WebFetcherDao:
 
             return f"网页 {url} 的内容：\n{text}"
         except requests.exceptions.Timeout:
-            raise ValueError("网页请求超时，请稍后重试")
+            raise AgentException("网页请求超时，请稍后重试")
         except requests.exceptions.ConnectionError:
-            raise ValueError("网络连接失败，请检查 URL")
+            raise AgentException("网络连接失败，请检查 URL")
         except requests.exceptions.HTTPError as e:
-            raise ValueError(f"网页请求失败：{str(e)}")
+            raise AgentException(f"网页请求失败：{str(e)}")
         except Exception as e:
-            raise ValueError(f"抓取失败，失败原因：{str(e)}")
+            raise AgentException(f"抓取失败，失败原因：{str(e)}")

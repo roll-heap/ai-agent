@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
 
-@dataclass
 class FileMetaDataModel(BaseModel):
     """文件元数据"""
     name:str = Field(description="文件名")

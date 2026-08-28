@@ -18,6 +18,13 @@ def execute_agent(agent, question: str, messages: list):
                 {"messages": messages},
                 version="v2"
             ):
+                # print(
+                #     f"\n========== EVENT =========="
+                #     f"\nevent: {event.get('event')}"
+                #     f"\nname: {event.get('name')}"
+                #     f"\ndata: {event.get('data')}"
+                #     f"\n==========================="
+                # )
                 kind = event["event"]
                 # ==========================
                 # LLM 输出

@@ -1,9 +1,6 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel, Field
 
 
-@dataclass
 class WeatherModel(BaseModel):
     city: str = Field(description="城市")
     weather: str = Field(description="天气")

@@ -1,12 +1,13 @@
 import re
 
 from agent.tool.dao.calculater_dao import CalculaterDao
+from agent.tool.model.tool_response_model import ToolResponseModel
 from exception.agent_exception import ErrorEnum, AgentException
 
 
 class CalculaterService:
     @staticmethod
-    def calculater(expression: str) -> dict:
+    def calculater(expression: str) -> ToolResponseModel:
         """
             执行数学计算，支持加减乘除、幂运算、括号。
             参数:
@@ -15,15 +16,9 @@ class CalculaterService:
         # 1. 安全检查：只允许数字、运算符、括号、小数点、空格
         allowed_pattern = r'^[\d+\-*/().%\s]+$'
         if not re.match(allowed_pattern, expression):
-            raise AgentException(ErrorEnum.CAL_EXPRESS_ERR)
+            return ToolResponseModel(success=False, msg=ErrorEnum.CAL_EXPRESS_ERR.value)
         try:
             result = CalculaterDao.calculater(expression)
-            return {
-                "success": True,
-                "data": result
-            }
+            return ToolResponseModel(data=result)
         except Exception as e:
-            return {
-                "success": False,
-                "data": str(e)
-            }
+            return ToolResponseModel(success=False, msg=str(e))
