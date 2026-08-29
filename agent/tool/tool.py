@@ -6,6 +6,7 @@ from langchain.tools import tool
 from agent.tool.service.calculater_service import CalculaterService
 from agent.tool.service.date_current_service import CurrentTimeService
 from agent.tool.service.file_operate import FileOperateService
+from agent.tool.service.search_web_service import SearchWebService
 from agent.tool.service.system_info_service import SystemInfoService
 from agent.tool.service.system_resource_service import SystemResourceService
 from agent.tool.service.weather import WeatherService
@@ -150,6 +151,15 @@ def system_resource_tool() -> dict:
     model = SystemResourceService.system_resource()
     return model.model_dump(mode="json")
 
+@tool(name_or_callable="search_web_tool", description="""在互联网上搜索信息。
+参数：
+query：搜索关键词，例如“Python 教程”“上海天气”。
+当用户需要查找最新信息、查找资料、搜索网络内容时使用此工具。
+""")
+def search_web_tool(keywords: str) -> dict:
+    model = SearchWebService.search_web(keywords=keywords)
+    return model.model_dump(mode="json")
+
 tools = [
     weather_tool,
     calculate_tool,
@@ -161,4 +171,5 @@ tools = [
     read_file_metadata_tool,
     system_info_tool,
     system_resource_tool,
+    search_web_tool,
 ]
