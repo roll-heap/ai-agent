@@ -5,10 +5,11 @@ from langchain.tools import tool
 
 from agent.tool.service.calculater_service import CalculaterService
 from agent.tool.service.date_current_service import CurrentTimeService
-from agent.tool.service.directory_operate_service import DirectoryOperateService
 from agent.tool.service.file_operate import FileOperateService
 from agent.tool.service.weather import WeatherService
 from agent.tool.service.web_fetcher import WebFetcherService
+
+
 @tool(
     name_or_callable="weather_tool",
     description="""
@@ -77,6 +78,7 @@ def fetch_webpage_tool(url: str) -> dict:
     model = WebFetcherService.web_fetcher(url)
     return model.model_dump(mode="json")
 
+
 @tool(
     name_or_callable="list_directory_tool",
     description="""
@@ -93,15 +95,10 @@ true：递归查看所有子目录。
 查找文件、查看项目结构时使用此工具。
 """
 )
-def list_directory_tool(
-    directory_path: str,
-    recursive: bool
-) -> dict:
-    model = DirectoryOperateService.list_directory(
-        directory_path,
-        recursive
-    )
+def list_directory_tool(directory_path: str, recursive: bool) -> dict:
+    model = FileOperateService.list_directory(directory_path, recursive)
     return model.model_dump(mode="json")
+
 
 @tool(
     name_or_callable="read_file_tool",
@@ -133,8 +130,9 @@ messages：需要写入的文本内容列表。
 """
 )
 def write_file_tool(file_path: str, content: str) -> dict:
-    model = FileOperateService.write_file( file_path, content)
+    model = FileOperateService.write_file(file_path, content)
     return model.model_dump(mode="json")
+
 
 @tool(
     name_or_callable="get_file_metadata",
