@@ -1,17 +1,15 @@
-from psutil._ntuples import scputimes
 from pydantic import BaseModel, Field
 
 
 class SystemResourceModel(BaseModel):
-    # cpu
-    cpu_physical_count: int | None = Field(description="物理核心数")
-    logical_core_count: int | None = Field(description="逻辑核心数")
-    cpu_percent: str = Field(description="CPU使用率")
-    cpu_freq: str = Field(description="CPU频率")
-    cpu_times: scputimes = Field(description="CPU时间")
+    # CPU
+    cpu_physical_count: int | None = Field(description="CPU物理核心数")
+    logical_core_count: int | None = Field(description="CPU逻辑核心数")
+    cpu_percent: float = Field(description="CPU使用率百分比")
+    cpu_freq_mhz: float | None = Field(description="当前CPU频率，单位MHz")
 
-    # 内存
-    mem_total: str = Field(description="总内存")
-    mem_used: str = Field(description="已用内存")
-    mem_percent: str = Field(description="内存使用率")
-    mem_swap_total: str = Field(description="交换内存总量")
+    # Memory
+    mem_total_gb: float = Field(description="总内存，单位GB")
+    mem_used_gb: float = Field(description="已使用内存，单位GB")
+    mem_percent: float = Field(description="内存使用率百分比")
+    mem_swap_total_gb: float = Field(description="交换内存总量，单位GB")

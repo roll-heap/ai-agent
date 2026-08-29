@@ -1,4 +1,4 @@
-from agent.tool.dao.SystemInfoDao import SystemInfoDao
+from agent.tool.dao.system_info_dao import SystemInfoDao
 from agent.tool.model.tool_response_model import ToolResponseModel
 
 

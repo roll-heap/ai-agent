@@ -6,29 +6,19 @@ from agent.tool.model.system_resource_Model import SystemResourceModel
 class SystemResourceDao:
     @staticmethod
     def system_resource() -> SystemResourceModel:
-        # cpu
-        cpu_physical_count = psutil.cpu_count(logical=False)
-        logical_core_count = psutil.cpu_count(logical=True)
-        cpu_percent = f"{psutil.cpu_percent(interval=1)}%"
-        cpu_freq = f"{psutil.cpu_freq().current:.0f} MHz"
-        cpu_times = psutil.cpu_times()
-
-        # 内存
+        cpu_freq = psutil.cpu_freq()
         mem = psutil.virtual_memory()
-        mem_total = f"{mem.total / (1024 ** 3):.2f} GB"
-        mem_used = f"{mem.used / (1024 ** 3):.2f} GB"
-        mem_percent = f"{mem.percent}%"
         swap = psutil.swap_memory()
-        mem_swap_total = f"{swap.total / (1024 ** 3):.2f} GB"
 
         return SystemResourceModel(
-            cpu_physical_count = cpu_physical_count,
-            logical_core_count = logical_core_count,
-            cpu_percent = cpu_percent,
-            cpu_freq = cpu_freq,
-            cpu_times = cpu_times,
-            mem_total = mem_total,
-            mem_used = mem_used,
-            mem_percent = mem_percent,
-            mem_swap_total = mem_swap_total
+            # CPU
+            cpu_physical_count=psutil.cpu_count(logical=False),
+            logical_core_count=psutil.cpu_count(logical=True),
+            cpu_percent=psutil.cpu_percent(interval=1),
+            cpu_freq_mhz=(cpu_freq.current if cpu_freq else None),
+            # Memory
+            mem_total_gb=mem.total / (1024 ** 3),
+            mem_used_gb=mem.used / (1024 ** 3),
+            mem_percent=mem.percent,
+            mem_swap_total_gb=swap.total / (1024 ** 3)
         )

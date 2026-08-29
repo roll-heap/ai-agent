@@ -145,7 +145,7 @@ def system_info_tool() -> dict:
     model = SystemInfoService.system_info()
     return model.model_dump(mode="json")
 
-@tool(name_or_callable="system_resource_tool", description="""获取系统资源，当用户询问系统使用资源的时候使用此工具""")
+@tool(name_or_callable="system_resource_tool", description="""获取系统资源，当用户询问系统资源的使用情况时使用此工具""")
 def system_resource_tool() -> dict:
     model = SystemResourceService.system_resource()
     return model.model_dump(mode="json")
@@ -160,4 +160,5 @@ tools = [
     list_directory_tool,
     read_file_metadata_tool,
     system_info_tool,
+    system_resource_tool,
 ]
