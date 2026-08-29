@@ -6,13 +6,13 @@ from langchain.tools import tool
 from agent.tool.service.calculater_service import CalculaterService
 from agent.tool.service.date_current_service import CurrentTimeService
 from agent.tool.service.file_operate import FileOperateService
+from agent.tool.service.system_info_service import SystemInfoService
+from agent.tool.service.system_resource_service import SystemResourceService
 from agent.tool.service.weather import WeatherService
 from agent.tool.service.web_fetcher import WebFetcherService
 
 
-@tool(
-    name_or_callable="weather_tool",
-    description="""
+@tool(name_or_callable="weather_tool", description="""
 查询某个城市的实时天气。
 
 参数：
@@ -29,9 +29,7 @@ def weather_tool(city: str) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="calculate_tool",
-    description="""
+@tool(name_or_callable="calculate_tool", description="""
 执行数学计算。
 
 参数：
@@ -48,9 +46,7 @@ def calculate_tool(expression: str) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="current_time_tool",
-    description="""
+@tool(name_or_callable="current_time_tool", description="""
 获取当前日期和时间。
 
 不需要参数。
@@ -63,9 +59,7 @@ def current_time_tool() -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="fetch_webpage_tool",
-    description="""
+@tool(name_or_callable="fetch_webpage_tool", description="""
 抓取指定 URL 网页中的文本内容。
 
 参数：
@@ -79,9 +73,7 @@ def fetch_webpage_tool(url: str) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="list_directory_tool",
-    description="""
+@tool(name_or_callable="list_directory_tool", description="""
 获取指定目录中的文件和子目录。
 
 参数：
@@ -100,9 +92,7 @@ def list_directory_tool(directory_path: str, recursive: bool) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="read_file_tool",
-    description="""
+@tool(name_or_callable="read_file_tool", description="""
 读取指定路径的文件内容。
 
 参数：
@@ -117,9 +107,7 @@ def read_file_tool(file_path: str) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="write_file_tool",
-    description="""
+@tool(name_or_callable="write_file_tool", description="""
 将文本写入指定文件。
 
 参数：
@@ -134,9 +122,7 @@ def write_file_tool(file_path: str, content: str) -> dict:
     return model.model_dump(mode="json")
 
 
-@tool(
-    name_or_callable="get_file_metadata",
-    description="""
+@tool(name_or_callable="read_file_metadata_tool", description="""
 获取指定文件的元数据信息。
 
 参数：
@@ -150,10 +136,19 @@ file_path：需要查询的文件路径。
 创建时间或修改时间时使用此工具。
 """
 )
-def read_file_metadata(file_path: str) -> dict:
+def read_file_metadata_tool(file_path: str) -> dict:
     model = FileOperateService.read_metadata(file_path)
     return model.model_dump(mode="json")
 
+@tool(name_or_callable="system_info_tool", description="""获取系统信息，当用户询问系统信息的时候使用此工具""")
+def system_info_tool() -> dict:
+    model = SystemInfoService.system_info()
+    return model.model_dump(mode="json")
+
+@tool(name_or_callable="system_resource_tool", description="""获取系统资源，当用户询问系统使用资源的时候使用此工具""")
+def system_resource_tool() -> dict:
+    model = SystemResourceService.system_resource()
+    return model.model_dump(mode="json")
 
 tools = [
     weather_tool,
@@ -163,5 +158,6 @@ tools = [
     read_file_tool,
     write_file_tool,
     list_directory_tool,
-    read_file_metadata,
+    read_file_metadata_tool,
+    system_info_tool,
 ]
