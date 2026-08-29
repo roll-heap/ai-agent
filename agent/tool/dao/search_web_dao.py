@@ -1,14 +1,14 @@
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 from agent.tool.model.seatch_web_model import SearchWebModel
 
 
 class SearchWebDao:
     @staticmethod
-    def search_web(keywords: str, max_results: int|None = 5) -> list:
+    def search_web(query: str, max_results: int|None = 5) -> list:
         result = []
         with DDGS() as ddgs:
-            for r in ddgs.text(keywords = keywords, max_results = max_results):
+            for r in ddgs.text(query = query, max_results = max_results):
                 title = r.get("title", "无标题")
                 href = r.get("href", "")
                 body = r.get("body", "")

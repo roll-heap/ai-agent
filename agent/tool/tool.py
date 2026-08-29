@@ -156,8 +156,8 @@ def system_resource_tool() -> dict:
 query：搜索关键词，例如“Python 教程”“上海天气”。
 当用户需要查找最新信息、查找资料、搜索网络内容时使用此工具。
 """)
-def search_web_tool(keywords: str) -> dict:
-    model = SearchWebService.search_web(keywords=keywords)
+def search_web_tool(query: str) -> dict:
+    model = SearchWebService.search_web(query=query)
     return model.model_dump(mode="json")
 
 tools = [

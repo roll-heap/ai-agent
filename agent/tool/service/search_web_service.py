@@ -4,9 +4,9 @@ from agent.tool.model.tool_response_model import ToolResponseModel
 
 class SearchWebService:
     @staticmethod
-    def search_web(keywords: str, max_results: int = 5) -> ToolResponseModel:
+    def search_web(query: str, max_results: int = 5) -> ToolResponseModel:
         try:
-            model = SearchWebDao.search_web(keywords, max_results)
+            model = SearchWebDao.search_web(query, max_results)
             if not model:
                 return ToolResponseModel(data=None, msg="暂无内容")
             return ToolResponseModel(data=model)

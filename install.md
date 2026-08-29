@@ -28,3 +28,4 @@ pip install fastapi uvicorn
 pip install beautifulsoup4
 # 根据关键词搜索网页，返回标题、链接、摘要
 pip install duckduckgo-search
+pip install ddgs
