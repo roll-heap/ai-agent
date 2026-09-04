@@ -1,4 +1,5 @@
 import re
+import time
 from datetime import datetime
 
 import akshare as ak
@@ -36,44 +37,61 @@ class StockDao:
         return code
 
     @staticmethod
-    def get_price_a(code: str) -> StockPriceModel:
+    def get_price_a(code: str, max_retries:int=3) -> StockPriceModel:
         """获取 A股实时行情（akshare）"""
-        try:
-            # 获取实时行情
-            df = ak.stock_zh_a_spot_em()
-            # 查找对应股票
-            row = df[df['代码'] == code]
+        """尝试多个数据源获取 A股行情"""
+        sources = [
+            ("东方财富", lambda: ak.stock_zh_a_spot_em()),
+            ("新浪财经", lambda: ak.stock_zh_a_spot()),
+        ]
+        last_error = []
+        for source_name, source_func in sources:
+            for attempt in range(max_retries):
+                try:
+                    StockDao.__do_get_price_a(source_func, code)
+                except Exception as e:
+                    last_error.append(e)
+                    print(f"⚠️ {source_name} 接口失败: {e}")
+                    if attempt < max_retries - 1:
+                        wait = 2 ** attempt  # 2, 4, 8 秒
+                        time.sleep(wait)
+                    continue
+        raise AgentException(f"查询 A股数据源均失败: {str(last_error)}")
+
+    @staticmethod
+    def __do_get_price_a(source_func, code):
+        # 获取实时行情
+        df = source_func()
+        # 查找对应股票
+        row = df[df['代码'] == code]
+        if row.empty:
+            # 尝试标准化代码后再查
+            normalized = StockDao._normalize_a_code(code)
+            # 提取纯数字代码
+            pure_code = re.sub(r'[^0-9]', '', normalized)
+            row = df[df['代码'] == pure_code]
             if row.empty:
-                # 尝试标准化代码后再查
-                normalized = StockDao._normalize_a_code(code)
-                # 提取纯数字代码
-                pure_code = re.sub(r'[^0-9]', '', normalized)
-                row = df[df['代码'] == pure_code]
-                if row.empty:
-                    raise AgentException(f"未找到 A股代码: {code}")
+                raise AgentException(f"未找到 A股代码: {code}")
 
-            r = row.iloc[0]
-            return StockPriceModel(
-                code=str(r['代码']),
-                name=str(r['名称']),
-                price=float(r['最新价']) if r['最新价'] else 0.0,
-                change=float(r['涨跌额']) if r['涨跌额'] else 0.0,
-                change_percent=float(r['涨跌幅']) if r['涨跌幅'] else 0.0,
-                volume=str(r['成交量']) if r['成交量'] else "N/A",
-                amount=str(r['成交额']) if r['成交额'] else "N/A",
-                turnover=float(r['换手率']) if r['换手率'] else None,
-                pe_ratio=float(r['市盈率-动态']) if r['市盈率-动态'] else None,
-                market_cap=str(r['总市值']) if r['总市值'] else "N/A",
-                high=float(r['最高']) if r['最高'] else None,
-                low=float(r['最低']) if r['最低'] else None,
-                open_price=float(r['今开']) if r['今开'] else None,
-                prev_close=float(r['昨收']) if r['昨收'] else None,
-                market="A股",
-                update_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            )
-
-        except Exception as e:
-            raise AgentException(f"查询 A股失败: {str(e)}")
+        r = row.iloc[0]
+        return StockPriceModel(
+            code=str(r['代码']),
+            name=str(r['名称']),
+            price=float(r['最新价']) if r['最新价'] else 0.0,
+            change=float(r['涨跌额']) if r['涨跌额'] else 0.0,
+            change_percent=float(r['涨跌幅']) if r['涨跌幅'] else 0.0,
+            volume=str(r['成交量']) if r['成交量'] else "N/A",
+            amount=str(r['成交额']) if r['成交额'] else "N/A",
+            turnover=float(r['换手率']) if r['换手率'] else None,
+            pe_ratio=float(r['市盈率-动态']) if r['市盈率-动态'] else None,
+            market_cap=str(r['总市值']) if r['总市值'] else "N/A",
+            high=float(r['最高']) if r['最高'] else None,
+            low=float(r['最低']) if r['最低'] else None,
+            open_price=float(r['今开']) if r['今开'] else None,
+            prev_close=float(r['昨收']) if r['昨收'] else None,
+            market="A股",
+            update_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
 
     @staticmethod
     def get_price_us(code: str) -> StockPriceModel:
