@@ -28,3 +28,6 @@ pip install fastapi uvicorn
 pip install beautifulsoup4
 # 根据关键词搜索网页，返回标题、链接、摘要
 pip install ddgs
+
+#股票查询工具实现
+pip install akshare yfinance
