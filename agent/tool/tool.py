@@ -207,6 +207,6 @@ tools = [
     system_info_tool,
     system_resource_tool,
     search_web_tool,
-    stock_price_tool,
-    stock_info_tool
+    # stock_price_tool,
+    # stock_info_tool
 ]
