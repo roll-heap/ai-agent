@@ -1,29 +1,4 @@
-# 激活 conda base 环境
-. "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
-conda activate base
-# 创建新环境（以3.12为例）
-conda create -n py312 python=3.12 -y
-conda activate py312
-# 验证
-python --version
-# 自动激活conda base
-如果想自动激活 conda base，在 .zprofile 里把那句话的 # 去掉即可。
 
-
-# 生成依赖清单
-pip freeze > requirements.txt
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 升级pip
-pip install --upgrade pip
-
-# 查看已安装的包
-pip list
-
-# 卸载包
-pip uninstall pandas
 
 执行pip install langchain报错  pip install langchain
 Traceback (most recent call last):
