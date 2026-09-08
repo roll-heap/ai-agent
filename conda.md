@@ -5,17 +5,18 @@ Conda 的常用命令主要围绕环境管理和包管理两大核心功能，�
 ## 1、环境管理
 环境管理是 Conda 最核心的功能，可以创建相互隔离的Python环境，避免不同项目间的依赖冲突。</br>
 
-| 任务       | 命令                                        | 示例                                       |
-|------------|---------------------------------------------|--------------------------------------------|
-| 创建环境   | conda create -n <env_name> python=<version> | conda create -n myenv python=3.9           |
-| 克隆环境   | conda create --clone <old_env> -n <new_env> | conda create --clone myenv -n myenv_backup |
-| 激活环境   | conda activate <env_name>                   | conda activate myenv                       |
-| 退出环境   | conda deactivate                            | conda deactivate                           |
-| 列出环境   | conda env list                              | conda env list                             |
-| 删除环境   | conda remove -n <env_name> --all            | conda remove -n myenv --all                |
-| 重命名环境 | conda rename -n <old_name> <new_name>       | conda rename -n myenv myenv_new            |
-| 导出环境   | conda env export > environment.yml          | conda env export > environment.yml         |
-| 导入环境   | conda env create -f environment.yml         | conda env create -f environment.yml        |
+| 任务       | 命令                                                          | 示例                                              |
+|------------|---------------------------------------------------------------|---------------------------------------------------|
+| 创建环境   | conda create -n <env_name> python=<version>                   | conda create -n myenv python=3.9                  |
+| 克隆环境   | conda create --clone <old_env> -n <new_env>                   | conda create --clone myenv -n myenv_backup        |
+| 激活环境   | conda activate <env_name>                                     | conda activate myenv                              |
+| 退出环境   | conda deactivate                                              | conda deactivate                                  |
+| 列出环境   | conda env list                                                | conda env list                                    |
+| 删除环境   | conda remove -n <env_name> --all                              | conda remove -n myenv --all                       |
+| 重命名环境 | conda rename -n <old_name> <new_name>                         | conda rename -n myenv myenv_new                   |
+| 导出环境   | conda env export > environment.yml                            | conda env export > environment.yml                |
+| 导出环境   | conda env export --from-history > environment.yml(跨平台兼容) | conda env export --from-history > environment.yml |
+| 导入环境   | conda env create -f environment.yml                           | conda env create -f environment.yml               |
 ## 2、包管理
 在激活目标环境后，可以使用以下命令管理该环境中的包。
 
