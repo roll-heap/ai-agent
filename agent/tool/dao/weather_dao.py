@@ -3,8 +3,8 @@ from datetime import datetime
 
 import requests
 
-from agent.tool.model.weater_model import WeatherModel
-from exception.agent_exception import AgentException
+from agent.tool.model import WeatherModel
+from exception import AgentException
 
 
 # ============================================================

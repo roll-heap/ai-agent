@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from exception.agent_exception import AgentException
+from exception import AgentException
 
 
 class WebFetcherDao:

@@ -4,7 +4,7 @@ from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-from exception.agent_exception import ErrorEnum, AgentException
+from exception import ErrorEnum, AgentException
 
 # 获取当前文件（config.py）所在目录的父目录（即项目根目录）
 BASE_DIR = Path(__file__).resolve().parent.parent

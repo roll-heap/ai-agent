@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from exception.agent_exception import ErrorEnum
+from exception import ErrorEnum
 
 
 class ToolResponseModel(BaseModel):

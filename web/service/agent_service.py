@@ -3,7 +3,7 @@ from datetime import datetime
 
 from logcore import set_correlation_id
 
-from config.logger_core import Logger, log
+from config import Logger, log
 from web.config.base_model import ChatRequest, ChatResponse
 from web.config.session_manager import session_manager
 

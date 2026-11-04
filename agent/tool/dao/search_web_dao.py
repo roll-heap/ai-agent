@@ -1,6 +1,6 @@
 from ddgs import DDGS
 
-from agent.tool.model.seatch_web_model import SearchWebModel
+from agent.tool.model import SearchWebModel
 
 
 class SearchWebDao:

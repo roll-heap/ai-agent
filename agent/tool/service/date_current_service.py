@@ -1,5 +1,5 @@
-from agent.tool.dao.date_current_dao import CurrentTimeDao
-from agent.tool.model.tool_response_model import ToolResponseModel
+from agent.tool.dao import CurrentTimeDao
+from agent.tool.model import ToolResponseModel
 
 
 class CurrentTimeService:

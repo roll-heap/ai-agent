@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from config.logger_core import log
+from config import log
 
 
 class BaseApplication:

@@ -3,15 +3,15 @@
 # ============================================================
 from langchain.tools import tool
 
-from agent.tool.service.calculater_service import CalculaterService
-from agent.tool.service.date_current_service import CurrentTimeService
-from agent.tool.service.file_operate import FileOperateService
-from agent.tool.service.search_web_service import SearchWebService
-from agent.tool.service.stock_service import StockService
-from agent.tool.service.system_info_service import SystemInfoService
-from agent.tool.service.system_resource_service import SystemResourceService
-from agent.tool.service.weather import WeatherService
-from agent.tool.service.web_fetcher import WebFetcherService
+from agent.tool.service import CalculaterService
+from agent.tool.service import CurrentTimeService
+from agent.tool.service import FileOperateService
+from agent.tool.service import SearchWebService
+from agent.tool.service import StockService
+from agent.tool.service import SystemInfoService
+from agent.tool.service import SystemResourceService
+from agent.tool.service import WeatherService
+from agent.tool.service import WebFetcherService
 
 
 @tool(name_or_callable="weather_tool", description="""

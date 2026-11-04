@@ -5,8 +5,8 @@ from datetime import datetime
 import akshare as ak
 import yfinance as yf
 
-from agent.tool.model.stock_price_model import StockPriceModel, StockInfoModel
-from exception.agent_exception import AgentException
+from agent.tool.model import StockPriceModel, StockInfoModel
+from exception import AgentException
 
 
 class StockDao:

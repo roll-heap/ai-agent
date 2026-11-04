@@ -1,6 +1,6 @@
-from agent.tool.dao.web_fetcher_dao import WebFetcherDao
-from agent.tool.model.tool_response_model import ToolResponseModel
-from exception.agent_exception import AgentException
+from agent.tool.dao import WebFetcherDao
+from agent.tool.model import ToolResponseModel
+from exception import AgentException
 
 
 class WebFetcherService:

@@ -1,6 +1,6 @@
 import psutil
 
-from agent.tool.model.system_resource_Model import SystemResourceModel
+from agent.tool.model import SystemResourceModel
 
 
 class SystemResourceDao:

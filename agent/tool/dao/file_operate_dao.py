@@ -1,8 +1,8 @@
 from datetime import datetime
 from pathlib import Path
 
-from agent.tool.model.file_metadata_model import FileMetaDataModel
-from exception.agent_exception import AgentException
+from agent.tool.model import FileMetaDataModel
+from exception import AgentException
 
 
 class FileOperateDao:

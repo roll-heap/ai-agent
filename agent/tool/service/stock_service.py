@@ -1,6 +1,6 @@
-from agent.tool.dao.stock_dao import StockDao
-from agent.tool.model.tool_response_model import ToolResponseModel
-from exception.agent_exception import AgentException
+from agent.tool.dao import StockDao
+from agent.tool.model import ToolResponseModel
+from exception import AgentException
 
 
 class StockService:
