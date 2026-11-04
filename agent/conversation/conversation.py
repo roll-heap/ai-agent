@@ -21,17 +21,22 @@ async def run_agent_turn(
 ) -> str:
     """执行一轮流式 Agent，并保留工具调用协议需要的全部消息。"""
     final_messages: Sequence[BaseMessage] | None = None
+    seen_tool_calls: set[str] = set()
+    seen_tool_results: set[str] = set()
+    tool_names: dict[str, str] = {}
     request_messages = [*history, {"role": "user", "content": question}]
     log.info(
         f"Agent 回合开始 | history_messages={len(history)} | "
         f"request_messages={len(request_messages)} | question={question}"
     )
 
-    async for mode, payload in agent.astream(
+    async for part in agent.astream(
         {"messages": request_messages},
         stream_mode=["messages", "values"],
         version="v2",
     ):
+        mode = part["type"]
+        payload = part["data"]
         if mode == "messages":
             message, _ = payload
             if isinstance(message.content, str) and message.content:
@@ -39,6 +44,32 @@ async def run_agent_turn(
         elif mode == "values" and "messages" in payload:
             final_messages = payload["messages"]
             log.info(f"Agent 状态快照 | {_message_summary(final_messages)}")
+            for message in final_messages:
+                if isinstance(message, AIMessage):
+                    for tool_call in message.tool_calls:
+                        tool_call_id = tool_call.get("id")
+                        tool_name = tool_call["name"]
+                        if tool_call_id:
+                            tool_names[tool_call_id] = tool_name
+                        call_key = tool_call_id or f"{tool_name}:{tool_call['args']!r}"
+                        if call_key not in seen_tool_calls:
+                            on_text(
+                                f"\n🔧 调用工具：{tool_name}\n"
+                                f"   参数：{tool_call['args']}\n"
+                            )
+                            seen_tool_calls.add(call_key)
+                elif isinstance(message, ToolMessage):
+                    tool_call_id = message.tool_call_id
+                    result_key = tool_call_id or f"{message.name}:{message.text}"
+                    if result_key not in seen_tool_results:
+                        tool_name = tool_names.get(
+                            tool_call_id,
+                            message.name or "unknown_tool",
+                        )
+                        on_text(
+                            f"\n✅ 工具返回（{tool_name}）：{message.text}\n"
+                        )
+                        seen_tool_results.add(result_key)
 
     if final_messages is None:
         raise RuntimeError("Agent 未返回完整消息状态")
