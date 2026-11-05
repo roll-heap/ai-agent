@@ -19,7 +19,13 @@ async def run_agent_turn(
     question: str,
     on_text: Callable[[str], None],
 ) -> str:
-    """执行一轮流式 Agent，并保留工具调用协议需要的全部消息。"""
+    """
+    agent：智能体
+    history：历史消息 list
+    question：用户消息
+    on_text：控制台文本打印输出
+    """
+    # 执行一轮流式 Agent，并保留工具调用协议需要的全部消息。
     final_messages: Sequence[BaseMessage] | None = None
     seen_tool_calls: set[str] = set()
     seen_tool_results: set[str] = set()
