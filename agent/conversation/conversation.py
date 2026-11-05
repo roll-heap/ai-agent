@@ -24,6 +24,7 @@ async def run_agent_turn(
     seen_tool_calls: set[str] = set()
     seen_tool_results: set[str] = set()
     tool_names: dict[str, str] = {}
+    history_message_count = len(history)
     request_messages = [*history, {"role": "user", "content": question}]
     log.info(
         f"Agent 回合开始 | history_messages={len(history)} | "
@@ -44,7 +45,8 @@ async def run_agent_turn(
         elif mode == "values" and "messages" in payload:
             final_messages = payload["messages"]
             log.info(f"Agent 状态快照 | {_message_summary(final_messages)}")
-            for message in final_messages:
+            # Agent 状态包含历史消息；只展示本轮新增的工具事件。
+            for message in final_messages[history_message_count:]:
                 if isinstance(message, AIMessage):
                     for tool_call in message.tool_calls:
                         tool_call_id = tool_call.get("id")

@@ -35,15 +35,21 @@ if __name__=="__main__":
     agent = Agent.create_agent()
     messages = []
     while True:
-        question = input("请输入问题，如退出，输入【y/退出/exit】\n")
-        if not question:
-            log.info("请输入问题")
-            continue
-        if question.lower() in ["y", "退出", "exit"]:
+        try:
+            question = input("请输入问题，如退出，输入【y/退出/exit】\n")
+            if not question:
+                log.info("请输入问题")
+                continue
+            if question.lower() in ["y", "退出", "exit"]:
+                break
+            begin_timestamp = datetime.now().timestamp()
+            execute_agent(agent, question, messages)
+            end_timestamp = datetime.now().timestamp()
+            log.info(f"执行时间:{end_timestamp - begin_timestamp}")
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n收到程序关闭，开始退出。")
             break
-        begin_timestamp = datetime.now().timestamp()
-        execute_agent(agent, question, messages)
-        end_timestamp = datetime.now().timestamp()
-        log.info(f"执行时间:{end_timestamp - begin_timestamp}")
-        time.sleep(1)
+        except Exception as e:
+            log.info(f"执行失败,失败信息：{e}")
     log.info("退出成功".center(60, "="))
