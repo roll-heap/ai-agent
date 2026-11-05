@@ -2,30 +2,20 @@
 from collections.abc import Callable, Sequence
 from typing import Any
 
-from agent.context import ContextManager
-from agent.sesion.session import ConversationSession
+from agent.context.context_manager import ContextManager
+from agent.sesion import ConversationSession
 from config import log
 
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    ToolMessage,
-)
+from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
 
 class ConversationHandler:
     """负责协调 Agent 的对话执行流程。"""
 
-    def __init__(
-        self,
-        agent: Any,
-        session: ConversationSession,
-    ):
+    def __init__(self, agent: Any):
         self.agent = agent
-        self.session = session
 
-    async def run_agent_turn(
-        self,
+    async def run_agent_turn(self, session: ConversationSession,
         question: str,
         on_text: Callable[[str], None],
     ) -> str:
@@ -37,11 +27,11 @@ class ConversationHandler:
         seen_tool_results: set[str] = set()
         tool_names: dict[str, str] = {}
 
-        history_message_count = len(self.session.history)
+        history_message_count = len(session.history)
 
         # 1. 构建本轮上下文
         context = ContextManager.build_context(
-            session=self.session,
+            session=session,
             question=question,
         )
         request_messages = context.messages
@@ -50,8 +40,7 @@ class ConversationHandler:
                  f"| request_messages={len(request_messages)} | question={question}")
 
         # 2. 执行 Agent
-        results = self.agent.astream(
-            {"messages": request_messages},
+        results = self.agent.astream({"messages": request_messages},
             stream_mode=["messages", "values"],
             version="v2",
         )
@@ -86,14 +75,14 @@ class ConversationHandler:
             raise RuntimeError("Agent 未返回完整消息状态")
 
         # 5. 更新对话历史
-        self._replace_history(final_messages)
+        self._replace_history(session, final_messages)
 
         # 6. 提取最终回答
         final_answer = self._get_final_answer(final_messages)
 
         log.info(
             f"Agent 回合完成 | "
-            f"history_messages={len(self.session.history)} | "
+            f"history_messages={len(session.history)} | "
             f"final_answer={final_answer}"
         )
 
@@ -135,10 +124,10 @@ class ConversationHandler:
 
                     seen_tool_results.add(result_key)
 
-    def _replace_history(self, messages: Sequence[BaseMessage]) -> None:
+    def _replace_history(self, session: ConversationSession, messages: Sequence[BaseMessage]) -> None:
         """用 Agent 返回的完整消息状态替换跨轮历史。"""
 
-        self.session.history[:] = messages
+        session.history[:] = messages
 
         log.info(f"Agent 历史已更新 | {self._message_summary(messages)}")
 
