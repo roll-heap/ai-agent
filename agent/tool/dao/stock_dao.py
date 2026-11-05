@@ -48,7 +48,7 @@ class StockDao:
         for source_name, source_func in sources:
             for attempt in range(max_retries):
                 try:
-                    StockDao.__do_get_price_a(source_func, code)
+                    return StockDao.__do_get_price_a(source_func, code)
                 except Exception as e:
                     last_error.append(e)
                     print(f"⚠️ {source_name} 接口失败: {e}")
