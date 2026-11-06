@@ -5,7 +5,7 @@ from langchain_core.messages import BaseMessage
 
 
 @dataclass
-class ConversationSession:
+class Session:
     """
     负责保存一次会话的历史消息
     """

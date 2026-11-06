@@ -1,9 +1,8 @@
-
 from collections.abc import Callable, Sequence
 from typing import Any
 
 from agent.context.context_manager import ContextManager
-from agent.sesion import ConversationSession
+from agent.sesion import Session
 from config import log
 
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
@@ -15,7 +14,7 @@ class ConversationHandler:
     def __init__(self, agent: Any):
         self.agent = agent
 
-    async def run_agent_turn(self, session: ConversationSession,
+    async def run_agent_turn(self, session: Session,
         question: str,
         on_text: Callable[[str], None],
     ) -> str:
@@ -124,7 +123,7 @@ class ConversationHandler:
 
                     seen_tool_results.add(result_key)
 
-    def _replace_history(self, session: ConversationSession, messages: Sequence[BaseMessage]) -> None:
+    def _replace_history(self, session: Session, messages: Sequence[BaseMessage]) -> None:
         """用 Agent 返回的完整消息状态替换跨轮历史。"""
 
         session.history[:] = messages

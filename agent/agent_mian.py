@@ -1,20 +1,20 @@
 import asyncio
 import time
 from datetime import datetime
-from agent.sesion import ConversationSession
+from agent.sesion import Session
 from agent.conversation import ConversationHandler
 from agent.init import Agent
 from config import log, trace
 
 
 @trace
-def execute_agent(agent, session:ConversationSession, question: str):
+def execute_agent(agent, session:Session, question: str):
 
     try:
         async def stream_agent():
             print("\n🤖 正在思考...", flush=True)
-            handler = ConversationHandler(agent,session)
-            final_answer = await handler.run_agent_turn(question,
+            handler = ConversationHandler(agent)
+            final_answer = await handler.run_agent_turn(session, question,
                 lambda text: print(text, end="", flush=True),
             )
             print()
@@ -29,7 +29,7 @@ if __name__=="__main__":
     # 引入
     agent = Agent.create_agent()
     # 一个会话的历史消息
-    session = ConversationSession()
+    session = Session()
     while True:
         try:
             question = input("请输入问题，如退出，输入【y/退出/exit】\n")

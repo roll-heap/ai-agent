@@ -1,12 +1,12 @@
 from langchain_core.messages import HumanMessage
 
 from agent.context.context import AgentContext
-from agent.sesion import ConversationSession
+from agent.sesion import Session
 
 
 class ContextManager:
     @staticmethod
-    def build_context(session: ConversationSession, question: str) -> AgentContext:
+    def build_context(session: Session, question: str) -> AgentContext:
         """
         根据会话历史和当前问题构建本轮上下文
         """

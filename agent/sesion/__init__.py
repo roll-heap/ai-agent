@@ -1,3 +1,3 @@
-from agent.sesion.session import ConversationSession
+from agent.sesion.session import Session
 
-__all__ = ["ConversationSession"]
+__all__ = ["Session"]
