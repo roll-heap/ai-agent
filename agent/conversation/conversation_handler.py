@@ -125,9 +125,7 @@ class ConversationHandler:
 
     def _replace_history(self, session: Session, messages: Sequence[BaseMessage]) -> None:
         """用 Agent 返回的完整消息状态替换跨轮历史。"""
-
         session.history[:] = messages
-
         log.info(f"Agent 历史已更新 | {self._message_summary(messages)}")
 
 

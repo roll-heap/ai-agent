@@ -1,28 +1,10 @@
-import asyncio
 import time
 from datetime import datetime
+
+from agent.agent_executor import AgentExecutor
 from agent.sesion import Session
-from agent.conversation import ConversationHandler
 from agent.init import Agent
-from config import log, trace
-
-
-@trace
-def execute_agent(agent, session:Session, question: str):
-
-    try:
-        async def stream_agent():
-            print("\n🤖 正在思考...", flush=True)
-            handler = ConversationHandler(agent)
-            final_answer = await handler.run_agent_turn(session, question,
-                lambda text: print(text, end="", flush=True),
-            )
-            print()
-            return final_answer
-        return asyncio.run(stream_agent())
-    except Exception as e:
-        log.exception(f"执行出错：{e}")
-        raise
+from config import log
 
 
 if __name__=="__main__":
@@ -30,19 +12,19 @@ if __name__=="__main__":
     agent = Agent.create_agent()
     # 一个会话的历史消息
     session = Session()
+    executor = AgentExecutor(agent)
     while True:
         try:
-            question = input("请输入问题，如退出，输入【y/退出/exit】\n")
+            question = input("请输入问题，如退出，输入【y/退出/exit】\n").strip()
             if not question:
                 log.info("请输入问题")
                 continue
             if question.lower() in ["y", "退出", "exit"]:
                 break
-            begin_timestamp = datetime.now().timestamp()
-            execute_agent(agent, session, question)
-            end_timestamp = datetime.now().timestamp()
-            log.info(f"执行时间:{end_timestamp - begin_timestamp}")
-            time.sleep(1)
+            begin = time.perf_counter()
+            executor.execute(session, question)
+            elapsed = time.perf_counter() - begin
+            log.info(f"执行时间:{elapsed:.2f} s")
         except KeyboardInterrupt:
             print("\n收到程序关闭，开始退出。")
             break
