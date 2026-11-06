@@ -8,7 +8,7 @@ class ContextManager:
     @staticmethod
     def build_context(session: Session, question: str) -> AgentContext:
         """
-        根据会话历史和当前问题构建本轮上下文
+        决定本轮 Agent 应该看到哪些信息。
         """
         # messages = [*session.history,{"role": "user", "content": question}]
         # 上面的和本行两者都可以作为 LangChain 的消息输入。使用 HumanMessage 可以让我们统一使用 LangChain 消息对象

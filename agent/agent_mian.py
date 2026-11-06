@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 
 from agent.agent_executor import AgentExecutor
 from agent.sesion import Session
