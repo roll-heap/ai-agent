@@ -161,40 +161,6 @@ def search_web_tool(query: str) -> dict:
     model = SearchWebService.search_web(query=query)
     return model.model_dump(mode="json")
 
-# 两个工具函数
-@tool(name_or_callable="stock_price_tool", description="""
-获取股票实时行情。
-
-参数：
-code：股票代码
-- A股：6位数字，例如 600519（贵州茅台）、000858（五粮液）
-- 美股：字母代码，例如 AAPL（苹果）、TSLA（特斯拉）、MSFT（微软）
-
-当用户询问股票价格、股价、涨跌情况时使用此工具。
-返回：当前价格、涨跌幅、成交量、市值等关键数据。
-"""
-)
-def stock_price_tool(code: str) -> dict:
-    model = StockService.get_price(code)
-    return model.model_dump(mode="json")
-
-
-@tool(name_or_callable="stock_info_tool", description="""
-获取股票基本面信息。
-
-参数：
-code：股票代码
-- A股：6位数字，例如 600519
-- 美股：字母代码，例如 AAPL
-
-当用户询问公司基本面、市盈率、市值、员工数、主营业务时使用此工具。
-返回：公司名称、行业、员工数、市盈率、市值、业务范围等。
-"""
-)
-def stock_info_tool(code: str) -> dict:
-    model = StockService.get_info(code)
-    return model.model_dump(mode="json")
-
 tools = [
     weather_tool,
     calculate_tool,
@@ -207,6 +173,4 @@ tools = [
     system_info_tool,
     system_resource_tool,
     search_web_tool,
-    # stock_price_tool,
-    # stock_info_tool
 ]
