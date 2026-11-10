@@ -56,20 +56,13 @@ class ConversationUtils:
 
                     seen_tool_results.add(result_key)
 
-    @staticmethod
-    def append_history(session: Session, messages: Sequence[BaseMessage]) -> None:
-        """将本轮新增消息追加到完整会话历史。"""
-        session.history.extend(messages)
-        log.info(f"Agent 历史已追加 | 新增消息={len(messages)} | 历史消息总数={len(session.history)}")
 
     @staticmethod
     def get_final_answer(messages: Sequence[BaseMessage]) -> str:
         """提取最后一条非工具调用的 AI 回复。"""
-
         for message in reversed(messages):
             if isinstance(message, AIMessage) and not message.tool_calls:
                 return message.text
-
         return ""
 
     @staticmethod

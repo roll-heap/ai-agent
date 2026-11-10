@@ -24,6 +24,7 @@ if __name__=="__main__":
             executor.execute(session, question)
             elapsed = time.perf_counter() - begin
             log.info(f"执行时间:{elapsed:.2f} s")
+            print()
         except KeyboardInterrupt:
             print("\n收到程序关闭，开始退出。")
             break

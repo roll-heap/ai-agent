@@ -7,7 +7,6 @@ from agent.tool.service import CalculaterService
 from agent.tool.service import CurrentTimeService
 from agent.tool.service import FileOperateService
 from agent.tool.service import SearchWebService
-from agent.tool.service import StockService
 from agent.tool.service import SystemInfoService
 from agent.tool.service import SystemResourceService
 from agent.tool.service import WeatherService
