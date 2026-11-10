@@ -1,6 +1,7 @@
 from langchain_core.messages import HumanMessage
 
 from agent.context.context import AgentContext
+from agent.conversation.conversation_utils import ConversationUtils
 from agent.sesion import Session
 
 
@@ -10,7 +11,7 @@ class ContextManager:
         """
         决定本轮 Agent 应该看到哪些信息。
         """
-        # messages = [*session.history,{"role": "user", "content": question}]
-        # 上面的和本行两者都可以作为 LangChain 的消息输入。使用 HumanMessage 可以让我们统一使用 LangChain 消息对象
-        messages = [*session.history, HumanMessage(content=question)]
+        turns = ConversationUtils.split_conversation_turns(session.history)
+        messages = [message for turn in turns for message in turn.messages]
+        messages.append(HumanMessage(content=question))
         return AgentContext(messages)

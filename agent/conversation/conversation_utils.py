@@ -1,15 +1,9 @@
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
-from agent.sesion import Session
-from config import log
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage, HumanMessage
+
+from agent.conversation.model.conversation_turn import ConversationTurn
 from exception import AgentException
 
-@dataclass
-class ConversationTurn:
-    """一轮对话及其完整性状态"""
-    messages: list[BaseMessage]
-    is_complete: bool
 
 class ConversationUtils:
     """

@@ -40,11 +40,11 @@ class ConversationHandler:
 
         # 执行 Agent
         try:
-            final_messages = await self.run_agent(session, request_messages, on_text)
-        except Exception:
+            final_messages = await self.run_agent(request_messages, on_text)
+        except Exception as e:
             # 本轮执行失败只保存用户消息
             session.history.append(current_user_message)
-            log.exception(f"Agent 执行失败，本轮只保存用户消息，history:{session.history}")
+            log.exception(f"Agent 执行失败，本轮只保存用户消息，history:{session.history},{e}")
             raise
 
         # 执行成功，保存本轮完整消息
