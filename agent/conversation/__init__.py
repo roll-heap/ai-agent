@@ -1,10 +1,11 @@
 from agent.conversation.conversation_utils import ConversationUtils
+from agent.conversation.model.conversation_turn import ConversationTurn
 from typing import TYPE_CHECKING
 # 给开发工具看，主要是让 PyCharm、类型检查器知道 ConversationHandler 是什么
 if TYPE_CHECKING:
     from agent.conversation.conversation_handler import ConversationHandler
 
-__all__ = ['ConversationUtils','ConversationHandler']
+__all__ = ['ConversationUtils','ConversationHandler', 'ConversationTurn']
 
 # 解决运行时延迟导入问题，解决循环导入报错
 def __getattr__(name: str) -> object:
