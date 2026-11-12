@@ -6,7 +6,7 @@ from agent.history.conversation_turn import ConversationTurn
 from exception import AgentException
 
 
-class HistoryParser:
+class HistoryTurnParser:
     """负责将原始历史消息解析为结构化对话轮次"""
     SUPPORTED_MESSAGE_TYPES = (SystemMessage, HumanMessage, AIMessage, ToolMessage)
 

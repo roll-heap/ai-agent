@@ -2,13 +2,13 @@ import pytest
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 
 from agent.context import ContextManager
-from agent.history import HistoryParser
+from agent.history import HistoryTurnParser
 from exception import AgentException
 
 
 @pytest.fixture
 def context_manager():
-    return ContextManager(history_parser=HistoryParser())
+    return ContextManager(history_turn_parser=HistoryTurnParser())
 
 def test_empty_history(context_manager):
     current_input = HumanMessage(content="你好")

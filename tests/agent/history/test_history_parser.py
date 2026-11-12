@@ -1,13 +1,13 @@
 import pytest
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage, ChatMessage, content
 
-from agent.history import HistoryParser
+from agent.history import HistoryTurnParser
 from exception import AgentException
 
 
 @pytest.fixture
 def parser():
-    return HistoryParser()
+    return HistoryTurnParser()
 
 def make_tool_call(tool_call_id: str, name: str = "test_tool") -> dict:
     return {
