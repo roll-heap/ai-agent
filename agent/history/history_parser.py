@@ -13,13 +13,14 @@ class HistoryParser:
     def parse_turns(self, messages: Sequence[BaseMessage]) -> list[ConversationTurn]:
         """将原始消息序列解析为对话轮次
         轮次规则：
-        1、HumanMessage 开始一个新轮次
-        2、AIMessage和ToolMessage归属为当前轮次
-        3、AIMessage不包含tool_calls，且不存在未完成的工具调用，同时工具调用协议有效时，当前轮次正常结束
-        4、新HumanMessage到来时，上一轮尚未结束则标记为不完整
-        5、历史结束时，当前轮次尚未结束标记为不完整
-        6、SystemMessage不参与轮次划分
-        7、工具调用与工具结束通过tool_call_id关联
+        1、HumanMessage 开始一个新轮次。
+        2、AIMessage 和 ToolMessage 归属当前轮次。
+        3、不存在待处理工具调用且协议有效时，AI 的无工具调用消息结束当前轮次。
+        4、新 HumanMessage 到来时，尚未结束的上一轮标记为不完整。
+        5、历史结束时，尚未结束的轮次标记为不完整。
+        6、SystemMessage 不参与轮次划分。
+        7、工具调用与工具结果通过 tool_call_id 关联。
+        8、当前轮次发生协议异常后，不恢复协议有效状态。
         """
         turns: list[ConversationTurn] = []
         # 当前正在解析的轮次
