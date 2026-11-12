@@ -3,7 +3,7 @@ from typing import Any
 
 from agent.sesion import Session
 from agent.conversation import ConversationHandler
-from config import log, trace
+from config import trace
 
 class AgentExecutor:
     def __init__(self, agent: Any):

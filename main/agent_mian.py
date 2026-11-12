@@ -1,6 +1,6 @@
 import time
 
-from agent.agent_executor import AgentExecutor
+from main.agent_executor import AgentExecutor
 from agent.sesion import Session
 from agent.init import Agent
 from config import log
