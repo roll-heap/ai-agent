@@ -2,11 +2,10 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from agent.context.context_manager import ContextManager
-from agent.conversation.conversation_utils import ConversationUtils
 from agent.sesion import Session
 from config import log
 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
 
 from exception import AgentException
 
@@ -50,7 +49,7 @@ class ConversationHandler:
         # 执行成功，保存本轮完整消息
         new_messages = final_messages[request_message_count - 1:]
         # 提取最终回答
-        final_answer = ConversationUtils.get_final_answer(final_messages)
+        final_answer = self.get_final_answer(final_messages)
         # 将本轮新增消息追加到完整会话历史。
         session.history.extend(new_messages)
         log.info(f"Agent 历史已追加 | 新增消息={len(new_messages)} | 历史消息总数={len(session.history)}")
@@ -82,9 +81,9 @@ class ConversationHandler:
                     on_text(message.content)
             elif mode == "values" and "messages" in payload:
                 final_messages = payload["messages"]
-                log.info(f"Agent 状态快照 | {ConversationUtils.message_summary(final_messages)}")
+                log.info(f"Agent 状态快照 | {self.message_summary(final_messages)}")
                 # 只处理本轮新增消息
-                ConversationUtils.handle_tool_events(
+                self.handle_tool_events(
                     final_messages[request_message_count:],
                     tool_names,
                     seen_tool_calls,
@@ -97,6 +96,109 @@ class ConversationHandler:
         # 前缀一致性校验，如果某个 Middleware 修改、删除或重排了输入消息，程序就不会悄悄地按照错误索引保存历史
         if final_messages[:request_message_count] != request_messages:
             raise AgentException("Agent 返回的消息状态与请求消息前缀不一致")
-        # 校验工具协议的完整性
-        ConversationUtils.validate_tool_protocol(final_messages[request_message_count:])
         return final_messages
+
+    """对话消息处理工具。
+        负责：
+        1. 处理 Agent 流式执行产生的工具事件。
+        2. 提取最终 AI 回复。
+        3. 生成消息摘要日志。
+        4. 校验工具调用协议。
+        5. 将完整历史拆分成独立对话轮次。
+        不负责：
+        1. Token 计算。
+        2. 历史上下文筛选。
+        3. 模型消息重放判定。
+        4. 摘要生成。
+        """
+
+    @staticmethod
+    def handle_tool_events(
+            messages: Sequence[BaseMessage],
+            tool_names: dict[str, str],
+            seen_tool_calls: set[str],
+            seen_tool_results: set[str],
+            on_text: Callable[[str], None],
+    ) -> None:
+        """
+        处理本轮新增的工具调用和工具返回事件。
+        识别 AIMessage 中的工具调用。
+        记录 tool_call_id 与工具名称的关系。
+        识别 ToolMessage 并展示工具结果。
+        """
+        for message in messages:
+            if isinstance(message, AIMessage):
+                for tool_call in message.tool_calls:
+                    tool_call_id = tool_call.get("id")
+                    tool_name = tool_call["name"]
+
+                    if tool_call_id:
+                        tool_names[tool_call_id] = tool_name
+
+                    call_key = (
+                            tool_call_id
+                            or f"{tool_name}:{tool_call['args']!r}"
+                    )
+
+                    if call_key not in seen_tool_calls:
+                        on_text(f"\n🔧 调用工具：{tool_name} 参数：{tool_call['args']}\n")
+                        seen_tool_calls.add(call_key)
+
+            elif isinstance(message, ToolMessage):
+                tool_call_id = message.tool_call_id
+                result_key = (tool_call_id or f"{message.name}:{message.text}")
+                if result_key not in seen_tool_results:
+                    tool_name = tool_names.get(tool_call_id, message.name or "unknown_tool", )
+                    on_text(f"\n✅ 工具返回（{tool_name}）: {message.text}\n")
+
+                    seen_tool_results.add(result_key)
+
+    @staticmethod
+    def get_final_answer(messages: Sequence[BaseMessage]) -> str:
+        """提取最后一条非工具调用的 AI 回复。"""
+        for message in reversed(messages):
+            if isinstance(message, AIMessage) and not message.tool_calls:
+                return message.text
+        return ""
+
+    @staticmethod
+    def message_summary(messages: Sequence[BaseMessage]) -> str:
+        """生成用于排障的完整消息协议详情。"""
+        summary = []
+        for index, message in enumerate(messages):
+
+            if isinstance(message, AIMessage):
+                tool_calls = [
+                    {
+                        "name": call["name"],
+                        "id": call["id"],
+                        "args": call["args"],
+                    }
+                    for call in message.tool_calls
+                ]
+
+                summary.append(
+                    f"{index}:ai("
+                    f"content={message.text!r}, "
+                    f"tool_calls={tool_calls})"
+                )
+
+            elif isinstance(message, ToolMessage):
+                summary.append(
+                    f"{index}:tool("
+                    f"name={message.name}, "
+                    f"tool_call_id={message.tool_call_id}, "
+                    f"content={message.text!r})"
+                )
+            elif isinstance(message, HumanMessage):
+                summary.append(
+                    f"{index}:human("
+                    f"content={message.text!r})"
+                )
+            else:
+                summary.append(
+                    f"{index}:{message.type}"
+                    f"(content={message.text!r})"
+                )
+
+        return " | ".join(summary)
