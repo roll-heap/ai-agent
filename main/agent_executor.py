@@ -1,14 +1,16 @@
 import asyncio
 from typing import Any
 
-from agent.sesion import Session
+from agent.context import ContextManager
+from agent.history import HistoryParser
+from agent.session import Session
 from agent.conversation import ConversationHandler
 from config import trace
 
 class AgentExecutor:
     def __init__(self, agent: Any):
         self.agent = agent
-        self.handler = ConversationHandler(agent)
+        self.handler = ConversationHandler(agent=agent, context_manager=ContextManager(history_parser=HistoryParser()))
 
     @trace
     def execute(self, session: Session, question: str):

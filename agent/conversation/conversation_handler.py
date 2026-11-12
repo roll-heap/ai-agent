@@ -1,8 +1,8 @@
 from collections.abc import Callable, Sequence
 from typing import Any
 
-from agent.context.context_manager import ContextManager
-from agent.sesion import Session
+from agent.context import ContextManager
+from agent.session import Session
 from config import log
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
@@ -13,16 +13,18 @@ from exception import AgentException
 class ConversationHandler:
     """负责协调 Agent 的对话执行流程。"""
 
-    def __init__(self, agent: Any):
+    def __init__(self, agent: Any, context_manager: ContextManager):
         self.agent = agent
+        self.context_manager = context_manager
 
     async def run_agent_turn(self, session: Session, question: str, on_text: Callable[[str], None],
     ) -> str:
         """执行 Agent、处理工具事件、提取本轮新增消息并更新 Session。"""
         # 1. 构建本轮上下文
-        context = ContextManager.build_context(
-            session=session,
-            question=question,
+        current_user_message = HumanMessage(content=question)
+        context = self.context_manager.build_context(
+            history=session.history,
+            current_input=current_user_message,
         )
         request_messages = context.messages
         if not request_messages:
@@ -30,13 +32,7 @@ class ConversationHandler:
         # 记录本轮实际发送的消息数量，因为未来 ContextManager 可能只选择部分历史消息。
         # 所以我们应该以 request_messages 为准，而不是以 session.history 为准。
         request_message_count = len(request_messages)
-        log.info(f"Agent 回合开始 | request_message_count={request_message_count} "
-                 f"| request_messages={len(request_messages)} | question={question}")
-        # 当前用户消息
-        current_user_message = request_messages[-1]
-        if not isinstance(current_user_message, HumanMessage):
-            raise AgentException("本轮上下文最后一条消息必须是 HumanMessage")
-
+        log.info(f"Agent 回合开始 | request_messages_count={request_message_count} | question={question}")
         # 执行 Agent
         try:
             final_messages = await self.run_agent(request_messages, on_text)
@@ -97,20 +93,6 @@ class ConversationHandler:
         if final_messages[:request_message_count] != request_messages:
             raise AgentException("Agent 返回的消息状态与请求消息前缀不一致")
         return final_messages
-
-    """对话消息处理工具。
-        负责：
-        1. 处理 Agent 流式执行产生的工具事件。
-        2. 提取最终 AI 回复。
-        3. 生成消息摘要日志。
-        4. 校验工具调用协议。
-        5. 将完整历史拆分成独立对话轮次。
-        不负责：
-        1. Token 计算。
-        2. 历史上下文筛选。
-        3. 模型消息重放判定。
-        4. 摘要生成。
-        """
 
     @staticmethod
     def handle_tool_events(
