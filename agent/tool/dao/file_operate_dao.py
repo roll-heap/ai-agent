@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from agent.tool.model import FileMetaDataModel
+from agent.tool.domain import FileMetaDataModel
 from exception import AgentException
 
 

@@ -1,7 +1,7 @@
 import re
 
 from agent.tool.dao import CalculaterDao
-from agent.tool.model import ToolResponseModel
+from agent.tool.domain import ToolResponseModel
 from exception import ErrorEnum
 
 

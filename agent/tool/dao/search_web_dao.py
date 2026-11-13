@@ -1,6 +1,6 @@
 from ddgs import DDGS
 
-from agent.tool.model import SearchWebModel
+from agent.tool.domain import SearchWebModel
 
 
 class SearchWebDao:

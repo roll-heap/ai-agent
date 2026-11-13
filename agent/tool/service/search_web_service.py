@@ -1,5 +1,5 @@
 from agent.tool.dao import SearchWebDao
-from agent.tool.model import ToolResponseModel
+from agent.tool.domain import ToolResponseModel
 
 
 class SearchWebService:

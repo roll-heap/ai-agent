@@ -1,5 +1,5 @@
 from agent.tool.dao import SystemResourceDao
-from agent.tool.model import ToolResponseModel
+from agent.tool.domain import ToolResponseModel
 
 
 class SystemResourceService:

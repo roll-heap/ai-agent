@@ -3,7 +3,7 @@ from datetime import datetime
 
 import requests
 
-from agent.tool.model import WeatherModel
+from agent.tool.domain import WeatherModel
 from exception import AgentException
 
 

@@ -1,7 +1,7 @@
 import os
 import platform
 
-from agent.tool.model import SystemInfoModel
+from agent.tool.domain import SystemInfoModel
 
 
 class SystemInfoDao:
