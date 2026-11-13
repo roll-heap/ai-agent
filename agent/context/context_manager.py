@@ -9,24 +9,30 @@ from exception import AgentException
 
 class ContextManager:
     """
-        1、接收构建上下文所需的数据
-            Conversation 将当前请求的原始历史、当前输入、任务分类结果和模型配置传给 ContextManager。
-        2、解析历史轮次
-            调用现有的 HistoryTurnParser.parse_turns(history)，得到 ConversationTurn 列表。
-        3、计算固定输入开销
-            使用共享的 TokenCounter 计算系统提示词、工具定义、当前输入等所需 Token。
-        4、估算输出 Token 预算
-            调用 OutputTokenBudgetEstimator，根据 TaskType 选择策略，得到本轮输出预算。
-        5、计算历史可用预算
-            从模型上下文窗口中扣除固定开销、当前输入、输出预留和安全余量，得到历史可用预算。
-        6、选择近期原始历史
-            调用 HistorySelector，按照 Fixed Turn Window 或 Token Budget 策略选择完整轮次。
-        7、处理历史摘要
-            调用 SummaryManager，判断摘要是否有效，是否需要复用、增量更新或完整重建。
-        8、最终预算校验与上下文组装
-            组合系统提示词、摘要、近期原始历史和当前输入，验证 Token 总量，生成 AgentContext。
+    1、接收本轮输入和运行配置
+        接收 history、current_input、model_config、system_prompt、tools。
+    2、任务分类
+        调用 TaskClassifier.classify(current_input)，得到 TaskClassificationResult。分类失败时记录错误，使用空分类结果，后续走默认预算策略。
+    3、历史轮次解析
+        调用 HistoryTurnParser，将 Session 的原始历史解析为 ConversationTurn 列表。保留不完整轮次，不修改原始历史。
+    4、统计固定输入开销
+        使用 TokenCounter 分别统计系统提示词、工具定义和当前输入。
+    5、估算输出预算
+        将当前输入、任务分类结果和 ModelConfig 传给 OutputTokenBudgetEstimator。
+    6、计算安全余量和历史预算
+        根据 TokenCountResult 的 accuracy 计算安全余量，再计算可用于历史的 Token 预算。
+    7、选择近期原始历史
+        调用 HistorySelector，按完整 ConversationTurn 选择连续的近期历史，得到 selected_turns 和 excluded_turns。
+    8、准备历史摘要
+        将被排除的较早历史、已有摘要、任务分类结果和剩余摘要预算交给 SummaryManager，复用、增量更新或重建摘要。
+    9、组装和最终预算检查
+        将摘要和近期原始历史按顺序组合，重新计数并检查总预算，形成 AgentContext。
     """
-    def __init__(self, history_turn_parser: HistoryTurnParser):
+    def __init__(
+        self,
+        history_turn_parser: HistoryTurnParser,
+
+    ):
         self.history_turn_parser = history_turn_parser
 
     def build_context(self, history: Sequence[BaseMessage], current_input: BaseMessage) -> AgentContext:

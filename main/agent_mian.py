@@ -1,5 +1,7 @@
 import time
 
+from agent.context import ContextManager
+from agent.history import HistoryTurnParser
 from main.agent_executor import AgentExecutor
 from agent.session import Session
 from agent.init import Agent
@@ -11,7 +13,10 @@ if __name__=="__main__":
     agent = Agent.create_agent()
     # 一个会话的历史消息
     session = Session()
-    executor = AgentExecutor(agent)
+    executor = AgentExecutor(
+        agent=agent,
+        context_manager=ContextManager(history_turn_parser=HistoryTurnParser())
+    )
     while True:
         try:
             question = input("请输入问题，如退出，输入【y/退出/exit】\n").strip()

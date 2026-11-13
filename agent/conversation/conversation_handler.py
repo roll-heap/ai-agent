@@ -1,38 +1,26 @@
 from collections.abc import Callable, Sequence
 from typing import Any
-
-from agent.context import ContextManager
 from agent.session import Session
 from config import log
-
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
-
 from exception import AgentException
 
 
 class ConversationHandler:
     """负责协调 Agent 的对话执行流程。"""
 
-    def __init__(self, agent: Any, context_manager: ContextManager):
+    def __init__(self, agent: Any):
         self.agent = agent
-        self.context_manager = context_manager
 
-    async def run_agent_turn(self, session: Session, question: str, on_text: Callable[[str], None],
+
+    async def run_agent_turn(self, session: Session, request_messages: list[BaseMessage], on_text: Callable[[str], None],
     ) -> str:
         """执行 Agent、处理工具事件、提取本轮新增消息并更新 Session。"""
-        # 1. 构建本轮上下文
-        current_user_message = HumanMessage(content=question)
-        context = self.context_manager.build_context(
-            history=session.history,
-            current_input=current_user_message,
-        )
-        request_messages = context.messages
         if not request_messages:
             raise AgentException("本轮上下文不能为空")
-        # 记录本轮实际发送的消息数量，因为未来 ContextManager 可能只选择部分历史消息。
-        # 所以我们应该以 request_messages 为准，而不是以 session.history 为准。
+        current_user_message = request_messages[-1]
         request_message_count = len(request_messages)
-        log.info(f"Agent 回合开始 | request_messages_count={request_message_count} | question={question}")
+        log.info(f"Agent 回合开始 | request_messages_count={request_message_count} | question={current_user_message}")
         # 执行 Agent
         try:
             final_messages = await self.run_agent(request_messages, on_text)
