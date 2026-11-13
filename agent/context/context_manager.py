@@ -9,10 +9,22 @@ from exception import AgentException
 
 class ContextManager:
     """
-    1、调用 HistoryTurnParser，将原始历史解析为 ConversationTurn。
-    2、根据上下文策略选择需要保留的历史轮次。
-    3、必要时执行历史裁剪或压缩。
-    4、将处理后的历史与当前输入组装成 AgentContext。
+        1、接收构建上下文所需的数据
+            Conversation 将当前请求的原始历史、当前输入、任务分类结果和模型配置传给 ContextManager。
+        2、解析历史轮次
+            调用现有的 HistoryTurnParser.parse_turns(history)，得到 ConversationTurn 列表。
+        3、计算固定输入开销
+            使用共享的 TokenCounter 计算系统提示词、工具定义、当前输入等所需 Token。
+        4、估算输出 Token 预算
+            调用 OutputTokenBudgetEstimator，根据 TaskType 选择策略，得到本轮输出预算。
+        5、计算历史可用预算
+            从模型上下文窗口中扣除固定开销、当前输入、输出预留和安全余量，得到历史可用预算。
+        6、选择近期原始历史
+            调用 HistorySelector，按照 Fixed Turn Window 或 Token Budget 策略选择完整轮次。
+        7、处理历史摘要
+            调用 SummaryManager，判断摘要是否有效，是否需要复用、增量更新或完整重建。
+        8、最终预算校验与上下文组装
+            组合系统提示词、摘要、近期原始历史和当前输入，验证 Token 总量，生成 AgentContext。
     """
     def __init__(self, history_turn_parser: HistoryTurnParser):
         self.history_turn_parser = history_turn_parser
