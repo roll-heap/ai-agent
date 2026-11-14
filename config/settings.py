@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from exception import ErrorEnum, AgentException
 
-# 获取当前文件（config.py）所在目录的父目录（即项目根目录）
+# 获取当前文件（settings.py）所在目录的父目录（即项目根目录）
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = BASE_DIR / ".env"
 
@@ -20,7 +20,8 @@ class Setting(BaseSettings):
     reload:bool = Field(default=True, alias="APP_RELOAD")
 
     # 模型配置
-    model: str = Field(default="deepseek-chat", alias="MODEL")
+    model_name: str = Field(default="deepseek-chat", alias="MODEL_NAME")
+    model_provider: str = Field(default="openai", alias="MODEL_PROVIDER")
     api_key: SecretStr = Field(..., alias="API_KEY")
     base_url:str = Field(default="https://api.deepseek.com", alias="BASE_URL")
     temperature:float = Field(default=0, alias="TEMPERATURE")

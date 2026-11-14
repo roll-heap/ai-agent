@@ -1,5 +1,7 @@
 from collections.abc import Callable, Sequence
 from typing import Any
+
+from agent.init import AgentRuntimeConfig
 from agent.session import Session
 from config import log
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
@@ -9,11 +11,12 @@ from exception import AgentException
 class ConversationHandler:
     """负责协调 Agent 的对话执行流程。"""
 
-    def __init__(self, agent: Any):
-        self.agent = agent
-
-
-    async def run_agent_turn(self, session: Session, request_messages: list[BaseMessage], on_text: Callable[[str], None],
+    async def run_agent_turn(
+            self,
+            runtime_config: AgentRuntimeConfig,
+            session: Session,
+            request_messages: list[BaseMessage],
+            on_text: Callable[[str], None],
     ) -> str:
         """执行 Agent、处理工具事件、提取本轮新增消息并更新 Session。"""
         if not request_messages:
@@ -23,7 +26,11 @@ class ConversationHandler:
         log.info(f"Agent 回合开始 | request_messages_count={request_message_count} | question={current_user_message}")
         # 执行 Agent
         try:
-            final_messages = await self.run_agent(request_messages, on_text)
+            final_messages = await self.run_agent(
+                agent=runtime_config.agent,
+                request_messages=request_messages,
+                on_text=on_text
+            )
         except Exception as e:
             # 本轮执行失败只保存用户消息
             session.history.append(current_user_message)
@@ -42,15 +49,18 @@ class ConversationHandler:
         return final_answer
 
 
-    async def run_agent(self, request_messages: Sequence[BaseMessage],
-                        on_text: Callable[[str], None]
-                        ) -> Sequence[BaseMessage]:
+    async def run_agent(
+            self,
+            agent: Any,
+            request_messages: Sequence[BaseMessage],
+            on_text: Callable[[str], None]
+    ) -> Sequence[BaseMessage]:
         final_messages: Sequence[BaseMessage] | None = None
         request_message_count = len(request_messages)
         tool_names: dict[str, str] = {}
         seen_tool_calls: set[str] = set()
         seen_tool_results: set[str] = set()
-        results = self.agent.astream(
+        results = agent.astream(
             {"messages": request_messages},
              stream_mode=["messages", "values"],
              version="v2",
