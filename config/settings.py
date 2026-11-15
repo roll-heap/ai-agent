@@ -23,6 +23,12 @@ class ModelSettings(BaseModel):
     context_window: int
     max_output_tokens: int
 
+class AgentSysPrompt(BaseModel):
+    """Agent系统提示词和工具"""
+    description: str
+    system_prompt: str
+    tools: list[str]
+
 class Setting(BaseSettings):
     """应用配置，支持从 .env 和环境变量加载"""
     app_name: str = Field(default="agent", alias="APP_NAME")
@@ -38,7 +44,7 @@ class Setting(BaseSettings):
 
     models: dict[str, ModelSettings] = Field(default_factory=dict, validation_alias="MODELS")
     agent_model_map: dict[str, str] = Field(default_factory=dict, validation_alias="AGENT_MODEL_MAP")
-    agent_profile: dict[str, dict[str, Any]] = Field(default_factory=dict, validation_alias="AGENT_PROFILES")
+    agent_profile: dict[str, AgentSysPrompt] = Field(default_factory=dict, validation_alias="AGENT_PROFILES")
 
     # class Config:
     #     """

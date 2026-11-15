@@ -50,15 +50,15 @@ class ProfileFactory:
             agent_profile = self.settings.agent_profile.get(profile_name)
             if agent_profile is None:
                 raise AgentException(f"Agent Profile配置不存在：{profile_name}")
-            tool_names = agent_profile.get("tools", [])
+            tool_names = agent_profile.tools
             tools = ProfileFactory._get_tools(tool_names)
             model_config, connection_config = self._get_model_configs(model_key)
             profiles.append(AgentProfile(
                 name=profile_name,
-                description=agent_profile.get("description", ""),
+                description=agent_profile.description,
                 model_config=model_config,
                 connection_config=connection_config,
-                system_prompt=agent_profile.get("system_prompt", ""),
+                system_prompt=agent_profile.system_prompt,
                 tools=tools
             ))
         return AgentProfileRegistry(profiles=profiles)
