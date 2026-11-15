@@ -23,7 +23,7 @@ class AgentExecutor:
             raise AgentException("用户问题不能为空")
         # 1.创建当前轮用户消息
         current_user_message = HumanMessage(content=question)
-        # 2、根据 AgentProfile 获取本轮运行配置
+        # 2、根据 AgentProfile 获取本轮运行Agent的配置
         runtime_config = self.agent_factory.get_agent_runtime_config(
             model_config=profile.model_config,
             connection_config=profile.connection_config,

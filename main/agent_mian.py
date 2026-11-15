@@ -9,10 +9,11 @@ from main.agent_executor import AgentExecutor
 
 
 def main():
-    # 1. 创建 Agent Profile 注册表
+    # 1. 创建 Agent Profile 注册表，根据.env读取到settings中，将配置注入到Factory中，包括Model配置，agent的系统配置
     profile_factory = ProfileFactory(settings)
+    # 获取注册器，根据注册器可以获取不同模型的配置
     profile_registry = profile_factory.create_registry()
-    # 2. 初始化执行依赖
+    # 2. 初始化执行依赖 获取Agent
     agent_factory = AgentFactory()
     context_manager = ContextManager(history_turn_parser=HistoryTurnParser())
     executor = AgentExecutor(agent_factory=agent_factory,context_manager=context_manager,)
