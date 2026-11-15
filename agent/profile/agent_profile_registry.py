@@ -12,10 +12,13 @@ class AgentProfileRegistry:
         self._profiles: dict[str, AgentProfile] = {}
         if profiles is not None:
             for profile in profiles:
-                if profile.name and profile.name not in self._profiles:
-                    self._profiles[profile.name] = profile
+                if not profile.name or not profile.name.strip():
+                    raise AgentException("AgentProfile名称不能为空")
+                if profile.name in self._profiles:
+                    raise AgentException(f"AgentProfile名称重复: {profile.name}")
+                self._profiles[profile.name] = profile
 
-    def get(self, name: str) -> AgentProfile | None:
+    def get(self, name: str) -> AgentProfile:
         """根据名称获取agent配置"""
         profile = self._profiles.get(name)
         if profile is None:

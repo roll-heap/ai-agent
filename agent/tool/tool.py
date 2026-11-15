@@ -160,16 +160,16 @@ def search_web_tool(query: str) -> dict:
     model = SearchWebService.search_web(query=query)
     return model.model_dump(mode="json")
 
-tools = [
-    weather_tool,
-    calculate_tool,
-    current_time_tool,
-    fetch_webpage_tool,
-    read_file_tool,
-    write_file_tool,
-    list_directory_tool,
-    read_file_metadata_tool,
-    system_info_tool,
-    system_resource_tool,
-    search_web_tool,
-]
+tools_dict = {
+    "weather_tool": weather_tool,
+    "calculate_tool": calculate_tool,
+    "current_time_tool": current_time_tool,
+    "fetch_webpage_tool": fetch_webpage_tool,
+    "read_file_tool": read_file_tool,
+    "write_file_tool": write_file_tool,
+    "list_directory_tool": list_directory_tool,
+    "read_file_metadata_tool": read_file_metadata_tool,
+    "system_info_tool": system_info_tool,
+    "system_resource_tool": system_resource_tool,
+    "search_web_tool": search_web_tool,
+}

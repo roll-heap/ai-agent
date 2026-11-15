@@ -5,7 +5,6 @@ from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 
 from agent.model import ModelConnectionConfig, ModelConfig
-from agent.tool import tools
 from config import log
 from exception import ErrorEnum, AgentException
 
@@ -32,26 +31,22 @@ class Agent:
         """根据运行配置创建 LangChain Agent。"""
         try:
             llm = Agent._init_llm(model_config=model_config, connection_config=connection_config)
-            return create_agent(
-                model=llm,
-                tools=tools if agent_tools is None else agent_tools,
-                system_prompt=system_prompt if system_prompt is not None else Agent.get_system_prompt(),
-            )
+            return create_agent(model=llm,tools=agent_tools,system_prompt=system_prompt)
         except Exception as e:
             log.exception(f"初始化agent异常{e}")
             raise AgentException(ErrorEnum.INIT_AGENT_ERR.value)
 
-    @staticmethod
-    def get_system_prompt():
-        return """你是一个智能助手。
-                请根据用户的问题判断是否需要调用工具。
-                如果需要工具：
-                1. 选择最合适的工具。
-                2. 正确填写工具参数。
-                3. 根据工具返回结果回答用户。
-                4. 不要编造工具没有返回的数据。
-                5. 如果工具执行失败，应根据工具返回的错误信息进行回答。
-                6. 如果不需要工具，可以直接回答用户。
-                工具调用由系统负责执行。
-                不要输出 Thought、Action、Action Input、Observation
-                等传统 ReAct 中间格式。"""
+    # @staticmethod
+    # def get_system_prompt():
+    #     return """你是一个智能助手。
+    #             请根据用户的问题判断是否需要调用工具。
+    #             如果需要工具：
+    #             1. 选择最合适的工具。
+    #             2. 正确填写工具参数。
+    #             3. 根据工具返回结果回答用户。
+    #             4. 不要编造工具没有返回的数据。
+    #             5. 如果工具执行失败，应根据工具返回的错误信息进行回答。
+    #             6. 如果不需要工具，可以直接回答用户。
+    #             工具调用由系统负责执行。
+    #             不要输出 Thought、Action、Action Input、Observation
+    #             等传统 ReAct 中间格式。"""

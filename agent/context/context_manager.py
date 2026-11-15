@@ -42,7 +42,7 @@ class ContextManager:
             runtime_config: AgentRuntimeConfig
     ) -> AgentContext:
         """
-        解析历史消息，并组装本轮 Agent 执行上下文。
+        解析历史消息，并组装本轮 Agent 执行上下文9。
         """
         # 当前阶段只接受 HumanMessage，其他消息类型直接报错。
         if not isinstance(current_input, HumanMessage):

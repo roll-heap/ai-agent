@@ -1,3 +1,3 @@
-from agent.tool.tool import tools
+from agent.tool.tool import tools_dict
 
-__all__=['tools']
+__all__=['tools_dict']
