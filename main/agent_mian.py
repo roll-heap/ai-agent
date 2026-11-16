@@ -2,6 +2,7 @@
 from agent.context import ContextManager, TaskClassifier
 from agent.factory import AgentFactory
 from agent.history import HistoryTurnParser
+from agent.model import TokenCounter
 from agent.profile import ProfileFactory
 from agent.session import Session
 from config import settings
@@ -18,6 +19,7 @@ def main():
     context_manager = ContextManager(
         history_turn_parser=HistoryTurnParser(),
         task_classifier=TaskClassifier(),
+        token_counter=TokenCounter(),
     )
     executor = AgentExecutor(agent_factory=agent_factory,context_manager=context_manager,)
     # 3. 创建一个 Session

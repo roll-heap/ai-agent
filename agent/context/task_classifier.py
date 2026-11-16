@@ -3,8 +3,6 @@ import json
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage, HumanMessage
 
-import exception
-from agent.context import task_type
 from agent.context.task_type import TaskClassificationResult, TaskType
 from config import settings, log
 
@@ -23,7 +21,7 @@ class TaskClassifier:
             base_url=self.connection_config.base_url,
             temperature=self.connection_config.temperature,
             timeout=self.connection_config.timeout,
-            max_retries=self.connection_config.max_retries
+            max_retries=self.connection_config.max_retries,
         )
 
     def classify(self, text: str) -> TaskClassificationResult:
@@ -31,12 +29,12 @@ class TaskClassifier:
         if not text or not text.strip():
             return TaskClassificationResult(task_types=(TaskType.GENERAL,))
         try:
-            response = self.llm.invoke([SystemMessage(content=self.classifier_sys_prompt),
+            response = self.llm.invoke(input=[SystemMessage(content=self.classifier_sys_prompt),
                         HumanMessage(content=text)])
         except Exception as e:
             log.exception("任务分类模型调用失败", e)
             return self._general_result()
-
+        log.info(f"分类模型原始输出: {response.content}")
         try:
             result = json.loads(response.content)
             task_types = tuple(TaskType(item) for item in result["task_types"])

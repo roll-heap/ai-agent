@@ -5,6 +5,7 @@ from agent.context.context import AgentContext
 from agent.context.task_classifier import TaskClassifier
 from agent.history import HistoryTurnParser
 from agent.init import AgentRuntimeConfig
+from agent.model import TokenCounter
 from config import log
 from exception import AgentException
 
@@ -14,7 +15,7 @@ class ContextManager:
     1、接收本轮输入和运行配置
         接收 history、current_input、model_config、system_prompt、tools。
     2、任务分类
-        调用 TaskClassifier.classify(current_input)，得到 TaskClassificationResult。分类失败时记录错误，使用空分类结果，后续走默认预算策略。
+        调用 TaskClassifier.classify(current_input)，得到 TaskClassificationResult。分类失败时记录错误，使用 GENERAL 作为兜底分类结果，后续走默认预算策略。
     3、历史轮次解析
         调用 HistoryTurnParser，将 Session 的原始历史解析为 ConversationTurn 列表。保留不完整轮次，不修改原始历史。
     4、统计固定输入开销
@@ -34,9 +35,11 @@ class ContextManager:
         self,
         history_turn_parser: HistoryTurnParser,
         task_classifier: TaskClassifier,
+        token_counter: TokenCounter,
     ):
         self.history_turn_parser = history_turn_parser
         self.task_classifier = task_classifier
+        self.token_counter = token_counter
 
     def build_context(
             self,
@@ -52,7 +55,8 @@ class ContextManager:
             raise AgentException("当前阶段只接受HumanMessage")
         if runtime_config is None:
             raise AgentException("AgentRuntimeConfig不能为空")
-        self.task_classifier.classify(current_input.content)
+        classification = self.task_classifier.classify(current_input.content)
+        log.info(f"当前任务分类结果: {[task_type.value for task_type in classification.task_types]}")
 
         # 获取本轮模型运行配置，后续Token预算会使用这个配置
         model_config = runtime_config.model_config
@@ -63,4 +67,7 @@ class ContextManager:
         turns = self.history_turn_parser.parse_turns(history)
         messages = [message for turn in turns for message in turn.messages]
         messages.append(current_input)
-        return AgentContext(messages=messages)
+        return AgentContext(
+            messages=messages,
+            task_classification=classification
+        )
