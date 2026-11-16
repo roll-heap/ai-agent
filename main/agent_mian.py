@@ -1,5 +1,5 @@
 
-from agent.context import ContextManager
+from agent.context import ContextManager, TaskClassifier
 from agent.factory import AgentFactory
 from agent.history import HistoryTurnParser
 from agent.profile import ProfileFactory
@@ -15,7 +15,10 @@ def main():
     profile_registry = profile_factory.create_registry()
     # 2. 初始化执行依赖 获取Agent
     agent_factory = AgentFactory()
-    context_manager = ContextManager(history_turn_parser=HistoryTurnParser())
+    context_manager = ContextManager(
+        history_turn_parser=HistoryTurnParser(),
+        task_classifier=TaskClassifier(),
+    )
     executor = AgentExecutor(agent_factory=agent_factory,context_manager=context_manager,)
     # 3. 创建一个 Session
     session = Session()

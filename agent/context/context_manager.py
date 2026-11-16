@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 from langchain_core.messages import BaseMessage, HumanMessage
 from agent.context.context import AgentContext
+from agent.context.task_classifier import TaskClassifier
 from agent.history import HistoryTurnParser
 from agent.init import AgentRuntimeConfig
 from config import log
@@ -32,8 +33,10 @@ class ContextManager:
     def __init__(
         self,
         history_turn_parser: HistoryTurnParser,
+        task_classifier: TaskClassifier,
     ):
         self.history_turn_parser = history_turn_parser
+        self.task_classifier = task_classifier
 
     def build_context(
             self,
@@ -49,6 +52,8 @@ class ContextManager:
             raise AgentException("当前阶段只接受HumanMessage")
         if runtime_config is None:
             raise AgentException("AgentRuntimeConfig不能为空")
+        self.task_classifier.classify(current_input.content)
+
         # 获取本轮模型运行配置，后续Token预算会使用这个配置
         model_config = runtime_config.model_config
         system_prompt = runtime_config.system_prompt

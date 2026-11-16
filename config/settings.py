@@ -1,7 +1,10 @@
 from pathlib import Path
 
-from pydantic import Field, SecretStr, BaseModel
+from pydantic import Field, BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from agent.model import ModelConfig, ModelConnectionConfig
+from exception import AgentException
 
 # 获取当前文件（settings.py）所在目录的父目录（即项目根目录）
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +48,11 @@ class Setting(BaseSettings):
     agent_model_map: dict[str, str] = Field(default_factory=dict, validation_alias="AGENT_MODEL_MAP")
     agent_profile: dict[str, AgentSysPrompt] = Field(default_factory=dict, validation_alias="AGENT_PROFILES")
 
+
+    classifier_model: str = Field(validation_alias="CLASSIFIER_MODEL")
+    classifier_sys_prompt: str = Field(validation_alias="CLASSIFIER_SYSTEM_PROMPT")
+
+
     # class Config:
     #     """
     #     pydantic框架里面约定的必须存在的
@@ -64,6 +72,27 @@ class Setting(BaseSettings):
         env_prefix="",                  # 无前缀（保持默认）
         validate_default=False,         # 不验证默认值（提升启动速度）
     )
+
+    def get_classifier_config(self) -> tuple[ModelConfig, ModelConnectionConfig, str]:
+        model_settings = self.models.get(self.classifier_model)
+        if model_settings is None:
+            raise AgentException("分类模型初始化失败")
+
+        model_config = ModelConfig(
+            model_name=model_settings.model_name,
+            context_window=model_settings.context_window,
+            max_output_tokens=model_settings.max_output_tokens
+        )
+        connection_config = ModelConnectionConfig(
+            model_provider=model_settings.model_provider,
+            api_key = model_settings.api_key,
+            base_url = model_settings.base_url,
+            temperature=model_settings.temperature,
+            timeout = model_settings.timeout,
+            max_retries=model_settings.max_retries
+        )
+        return model_config, connection_config, self.classifier_sys_prompt
+
 
 # 全局变量，方便统一管理
 settings = Setting()
