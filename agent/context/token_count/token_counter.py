@@ -3,7 +3,7 @@ from typing import Sequence, Any
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.messages import BaseMessage
 
-from agent.model.domain import TokenCountResult, TokenCountAccuracy
+from agent.context.domain import TokenCountResult
 
 
 class TokenCounter:

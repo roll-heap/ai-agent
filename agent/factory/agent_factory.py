@@ -137,14 +137,14 @@ class AgentFactory:
                 self._cache[cache_key] = model_agent
                 if len(self._cache) > self.max_cache_size:
                     self._cache.popitem(last=False)
-        return AgentRuntimeConfig(
-            agent=model_agent.agent,
-            model_config=model_config,
-            model=model_agent.model,
-            connection_config=connection_config,
-            system_prompt=system_prompt,
-            tools=agent_tools
-        )
+            return AgentRuntimeConfig(
+                agent=model_agent.agent,
+                model_config=model_config,
+                model=model_agent.model,
+                connection_config=connection_config,
+                system_prompt=system_prompt,
+                tools=agent_tools
+            )
 
     def clear_cache(self) -> None:
         """清空Agent缓存"""
