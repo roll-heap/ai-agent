@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar
 
+from agent.context.domain import InputModality
 from agent.model import ModelConfig
-from agent.model.domain import InputModality
-from agent.model.domain.token_count_result import TokenCountAccuracy
+from agent.context.domain.token_count_result import TokenCountAccuracy
 
 
 class BaseTokenCountStrategy(ABC):

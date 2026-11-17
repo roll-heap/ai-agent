@@ -1,9 +1,12 @@
 from typing import Any
 
+from agent.context.domain import InputModality, TokenCountAccuracy
 from agent.model import ModelConfig
-from agent.model.domain import TokenCountAccuracy, InputModality
 from common.demo.strategies.base_token_count_strategy import BaseTokenCountStrategy
-from agent.model.token_counter.tokenizer_factory import TokenizerFactory
+
+
+class TokenizerFactory:
+    pass
 
 
 class TextStrategy(BaseTokenCountStrategy):
