@@ -16,7 +16,6 @@ class AgentRuntimeConfig:
     agent: Any
     # 当前模型的上下文窗口和输出限制
     model_config: ModelConfig
-    model: BaseChatModel
     connection_config: ModelConnectionConfig
     # 本轮实际使用的系统提示词
     system_prompt: str

@@ -23,10 +23,6 @@ class AgentCacheKey:
     system_prompt_fingerprint: str
     tools_fingerprint: str
 
-class ModelAndAgent:
-    agent: Any
-    model: Any
-
 class AgentFactory:
     """Agent工厂
     根据本轮运行配置获取或创建agent，并组装 AgentRuntimeConfig
@@ -35,7 +31,7 @@ class AgentFactory:
         if max_cache_size <= 0:
             raise AgentException("max_cache_size必须大于0")
         self.max_cache_size = max_cache_size
-        self._cache: OrderedDict[AgentCacheKey, ModelAndAgent] = OrderedDict() # LRU
+        self._cache: OrderedDict[AgentCacheKey, Any] = OrderedDict() # LRU
         self._lock = RLock()
 
     @staticmethod
@@ -123,24 +119,19 @@ class AgentFactory:
             agent_tools=agent_tools
         )
         with self._lock:
-            model_agent = self._cache.get(cache_key)
-            if model_agent is not None:
+            agent = self._cache.get(cache_key)
+            if agent is not None:
                 # 移动到末尾，表示最近使用
                 self._cache.move_to_end(cache_key)
             else:
-                model_agent = ModelAndAgent()
                 # 在锁内创建，避免并发请求重复创建相同Agent
-                model = Agent.init_llm(model_config=model_config, connection_config=connection_config)
-                model_agent.model = model
-                agent = Agent.create_agent(model=model, system_prompt=system_prompt, agent_tools=agent_tools)
-                model_agent.agent = agent
-                self._cache[cache_key] = model_agent
+                agent = Agent.init_llm(model_config=model_config, connection_config=connection_config)
+                self._cache[cache_key] = agent
                 if len(self._cache) > self.max_cache_size:
                     self._cache.popitem(last=False)
             return AgentRuntimeConfig(
-                agent=model_agent.agent,
+                agent=agent,
                 model_config=model_config,
-                model=model_agent.model,
                 connection_config=connection_config,
                 system_prompt=system_prompt,
                 tools=agent_tools

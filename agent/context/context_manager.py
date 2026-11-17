@@ -44,7 +44,6 @@ class ContextManager:
         model_config = runtime_config.model_config
         system_prompt = runtime_config.system_prompt
         agent_tools = runtime_config.tools
-        model = runtime_config.model
         log.info(f"当前模型: {model_config.model_name},上下文窗口: {model_config.context_window},最大输出: {model_config.max_output_tokens},工具数量: {len(agent_tools)}")
 
         turns = self.history_turn_parser.parse_turns(history)
