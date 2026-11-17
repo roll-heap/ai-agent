@@ -1,12 +1,9 @@
 import json
 
 import httpx
-from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_ollama import ChatOllama
 
-from agent.context import task_type
-from agent.context.task_type import TaskClassificationResult, TaskType
 from config import settings, log
 
 

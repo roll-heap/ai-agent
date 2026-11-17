@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from langchain_core.messages import BaseMessage
 
-from agent.context.task_type import TaskClassificationResult
-
 
 @dataclass
 class AgentContext:
@@ -18,4 +16,3 @@ class AgentContext:
         工具结果	            Agent 执行过程	        支持后续模型调用
     """
     messages:list[BaseMessage]
-    task_classification: TaskClassificationResult

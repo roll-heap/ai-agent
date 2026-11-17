@@ -2,6 +2,7 @@ import asyncio
 
 from langchain_core.messages import HumanMessage
 
+import agent
 from agent.context import ContextManager
 from agent.factory import AgentFactory
 from agent.profile import AgentProfile
@@ -34,7 +35,7 @@ class AgentExecutor:
         context = self.context_manager.build_context(
             history=session.history,
             current_input=current_user_message,
-            runtime_config=runtime_config
+            runtime_config=runtime_config,
         )
         request_messages = context.messages
         # 4. 执行当前 Agent

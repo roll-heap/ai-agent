@@ -3,6 +3,7 @@ from typing import Sequence, Any
 
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
+from langchain_core.language_models import BaseChatModel
 
 from agent.model import ModelConnectionConfig, ModelConfig
 from config import log
@@ -13,7 +14,7 @@ from exception import ErrorEnum, AgentException
 class Agent:
 
     @staticmethod
-    def _init_llm(model_config: ModelConfig, connection_config: ModelConnectionConfig):
+    def init_llm(model_config: ModelConfig, connection_config: ModelConnectionConfig):
         """根据模型连接配置初始化 LangChain ChatModel。"""
         return init_chat_model(
             model=model_config.model_name,
@@ -26,12 +27,11 @@ class Agent:
         )
 
     @staticmethod
-    def create_agent(model_config: ModelConfig, connection_config: ModelConnectionConfig, system_prompt: str|None = None,
+    def create_agent(model: BaseChatModel, system_prompt: str|None = None,
                      agent_tools: Sequence[Any] | None = None,):
         """根据运行配置创建 LangChain Agent。"""
         try:
-            llm = Agent._init_llm(model_config=model_config, connection_config=connection_config)
-            return create_agent(model=llm,tools=agent_tools,system_prompt=system_prompt)
+            return create_agent(model=model,tools=agent_tools,system_prompt=system_prompt)
         except Exception as e:
             log.exception(f"初始化agent异常{e}")
             raise AgentException(ErrorEnum.INIT_AGENT_ERR.value)
