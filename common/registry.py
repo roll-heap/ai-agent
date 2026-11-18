@@ -3,8 +3,9 @@ from typing import TypeVar, Hashable, Generic, Type, Callable
 from common.class_scanner import ClassScanner
 from exception import AgentException
 
-K = TypeVar("K", bound=Hashable)
+#TypeVar：声明一个叫 T 的类型占位符，它代表“某种还没确定的具体类型”，由使用方在调用/继承时填充
 T = TypeVar("T")
+K = TypeVar("K", bound=Hashable)
 
 
 class Registry(Generic[K, T]):

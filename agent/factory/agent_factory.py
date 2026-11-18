@@ -125,7 +125,7 @@ class AgentFactory:
                 self._cache.move_to_end(cache_key)
             else:
                 # 在锁内创建，避免并发请求重复创建相同Agent
-                agent = Agent.init_llm(model_config=model_config, connection_config=connection_config)
+                agent = Agent.create_agent(model_config=model_config, connection_config=connection_config)
                 self._cache[cache_key] = agent
                 if len(self._cache) > self.max_cache_size:
                     self._cache.popitem(last=False)

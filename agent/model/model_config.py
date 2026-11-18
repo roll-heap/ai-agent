@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from agent.context.domain import HuggingFaceConfig
+
 
 @dataclass
 class ModelConfig:
@@ -10,3 +12,4 @@ class ModelConfig:
     context_window: int
     # 模型最大输出 Token 数
     max_output_tokens: int
+    hugging_face_config: HuggingFaceConfig | None = None
