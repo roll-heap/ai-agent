@@ -1,7 +1,8 @@
 from collections.abc import Sequence
 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from agent.context.context import AgentContext
+from agent.context.token_count import TokenCounter
 from agent.history import HistoryTurnParser
 from agent.init import AgentRuntimeConfig
 from config import log
@@ -23,8 +24,10 @@ class ContextManager:
     def __init__(
         self,
         history_turn_parser: HistoryTurnParser,
+        token_counter:TokenCounter,
     ):
         self.history_turn_parser = history_turn_parser
+        self.token_counter = token_counter
 
     def build_context(
             self,
@@ -42,12 +45,34 @@ class ContextManager:
             raise AgentException("AgentRuntimeConfig不能为空")
         # 获取本轮模型运行配置，后续Token预算会使用这个配置
         model_config = runtime_config.model_config
+        connection_config = runtime_config.connection_config
         system_prompt = runtime_config.system_prompt
         agent_tools = runtime_config.tools
         log.info(f"当前模型: {model_config.model_name},上下文窗口: {model_config.context_window},最大输出: {model_config.max_output_tokens},工具数量: {len(agent_tools)}")
-
+        # 1、解析历史轮次
         turns = self.history_turn_parser.parse_turns(history)
-        messages = [message for turn in turns for message in turn.messages]
+        # 2、保留完整历史轮次
+        complete_turns = [turn for turn in turns if turn.is_complete]
+        # 3、组装固定输入消息
+        current_message = [
+            SystemMessage(content=system_prompt),
+            current_input
+        ]
+        # 4、统计系统提示词、当前输入和工具定义
+        current_token_result = self.token_counter.count(
+            messages=current_message,
+            model_config=model_config,
+            connection_config=connection_config,
+            tool_definitions=agent_tools,
+            add_generation_prompt=True
+        )
+        # 5、获取本次请求的输出预留预算
+        output_token_budge = model_config.max_output_tokens
+        log.info(f"固定输入Token:{current_token_result.total_tokens}，统计精度：{current_token_result.accuracy.value}"
+                 f"统计完整性：{current_token_result.completeness.value},输出预留预算：{output_token_budge}"
+                 f"完整历史轮次：{len(complete_turns)}, 排除不完整轮次：{len(turns) - len(complete_turns)}")
+        # 暂时保留完整历史和当前输入，后续步骤再进行历史预算筛选
+        messages=[message for turn in complete_turns for message in turn.messages]
         messages.append(current_input)
         return AgentContext(
             messages=messages,

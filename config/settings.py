@@ -3,6 +3,8 @@ from pathlib import Path
 from pydantic import Field, BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from agent.context.domain import HuggingFaceConfig
+
 # 获取当前文件（settings.py）所在目录的父目录（即项目根目录）
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = BASE_DIR / ".env"
@@ -21,6 +23,8 @@ class ModelSettings(BaseModel):
 
     context_window: int
     max_output_tokens: int
+    # Hugging Face Tokenizer 配置
+    hugging_face_config: HuggingFaceConfig|None=None
 
 class AgentSysPrompt(BaseModel):
     """Agent系统提示词和工具"""

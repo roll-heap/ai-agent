@@ -1,4 +1,5 @@
 from agent.context import ContextManager
+from agent.context.token_count import TokenCounter
 from agent.factory import AgentFactory
 from agent.history import HistoryTurnParser
 from agent.profile import ProfileFactory
@@ -10,6 +11,7 @@ from main.agent_executor import AgentExecutor
 def init_context_component() -> ContextManager:
     context_manager = ContextManager(
         history_turn_parser=HistoryTurnParser(),
+        token_counter = TokenCounter()
     )
     return context_manager
 

@@ -22,7 +22,8 @@ class ProfileFactory:
         model_config = ModelConfig(
             model_name=model_settings.model_name,
             context_window=model_settings.context_window,
-            max_output_tokens=model_settings.max_output_tokens
+            max_output_tokens=model_settings.max_output_tokens,
+            hugging_face_config=model_settings.hugging_face_config
         )
         model_connection_config = ModelConnectionConfig(
             model_provider=model_settings.model_provider,
