@@ -60,23 +60,26 @@ class ContextManager:
             *history_messages,
             current_input
         ]
-        token_message = [
+        token_messages = [
             SystemMessage(content=runtime_config.system_prompt),
             *agent_messages,
         ]
         # 4、组装用于 Token 统计的完整消息
         current_token_result = self.token_counter.count(
-            messages=token_message,
+            messages=token_messages,
             model_config=model_config,
             connection_config=connection_config,
             tool_definitions=runtime_config.tools,
             add_generation_prompt=True
         )
         # 5、获取本次请求的输出预留预算
-        output_token_budge = model_config.max_output_tokens
-        log.info(f"固定输入Token:{current_token_result.total_tokens}，统计精度：{current_token_result.accuracy.value}"
-                 f"统计完整性：{current_token_result.completeness.value},输出预留预算：{output_token_budge}"
-                 f"完整历史轮次：{len(complete_turns)}, 排除不完整轮次：{len(turns) - len(complete_turns)}")
-        # 暂时保留完整历史和当前输入，后续步骤再进行历史预算筛选
-
+        output_token_budget = model_config.max_output_tokens
+        log.info(
+            f"候选输入Token: {current_token_result.total_tokens},"
+            f"统计精度: {current_token_result.accuracy.value},"
+            f"统计完整性: {current_token_result.completeness.value},"
+            f"输出预留预算: {output_token_budget},"
+            f"完整历史轮次: {len(complete_turns)},"
+            f"排除不完整轮次: {len(turns) - len(complete_turns)}"
+        )
         return AgentContext(messages=agent_messages)
