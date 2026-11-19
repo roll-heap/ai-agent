@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from langchain_core.tools import BaseTool
+
 from agent.model import ModelConfig, ModelConnectionConfig
 
 
@@ -11,4 +13,4 @@ class AgentProfile:
     model_config: ModelConfig
     connection_config: ModelConnectionConfig
     system_prompt: str
-    tools: tuple[Any, ...]
+    tools: tuple[BaseTool, ...]

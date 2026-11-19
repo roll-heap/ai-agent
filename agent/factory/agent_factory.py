@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from threading import RLock
 from typing import Any, Sequence
 
+from langchain_core.tools import BaseTool
+
 from agent.init import AgentRuntimeConfig, Agent
 from agent.model import ModelConnectionConfig, ModelConfig
 from exception import AgentException
@@ -108,7 +110,7 @@ class AgentFactory:
             model_config: ModelConfig,
             connection_config: ModelConnectionConfig,
             system_prompt: str,
-            agent_tools: Sequence[Any]
+            agent_tools: Sequence[BaseTool]
     ) -> AgentRuntimeConfig:
         """获取本来agent运行配置，相同配置服用Agent，不同配置创建独立的Agent"""
         # 统一确定最终Prompt和Tools，保证缓存键与实际创建Agent使用的配置一致
@@ -125,7 +127,12 @@ class AgentFactory:
                 self._cache.move_to_end(cache_key)
             else:
                 # 在锁内创建，避免并发请求重复创建相同Agent
-                agent = Agent.create_agent(model_config=model_config, connection_config=connection_config)
+                agent = Agent.create_agent(
+                    model_config=model_config,
+                    connection_config=connection_config,
+                    system_prompt=system_prompt,
+                    agent_tools=agent_tools,
+                )
                 self._cache[cache_key] = agent
                 if len(self._cache) > self.max_cache_size:
                     self._cache.popitem(last=False)

@@ -4,6 +4,7 @@ from typing import Sequence, Any
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models import BaseChatModel
+from langchain_core.tools import BaseTool
 
 from agent.model import ModelConnectionConfig, ModelConfig
 from config import log
@@ -28,7 +29,7 @@ class Agent:
 
     @staticmethod
     def create_agent(model_config: ModelConfig, connection_config: ModelConnectionConfig, system_prompt: str|None = None,
-                     agent_tools: Sequence[Any] | None = None,):
+                     agent_tools: Sequence[BaseTool] | None = None,):
         """根据运行配置创建 LangChain Agent。"""
         try:
             model = Agent._init_llm(model_config=model_config, connection_config=connection_config)
