@@ -91,16 +91,18 @@ class TokenizerProvider(BaseTokenCountProvider):
             if tokenizer is not None:
                 return tokenizer
             try:
-                # 获取当前执行命令的目录
+                # 获取当前执行命令的目录，会从hugging face官网下载对应的tokenizer并保存在cache_dir目录下
                 project_path = AgentUtils.get_project_root(project_name="ai-agent")
-                cache_dir = project_path / "cache" / "hugging_face_cache"
+                cache_dir = project_path / "cache" / "hugging_face_cache"/hugging_face_config.name_or_path
                 cache_dir.mkdir(parents=True, exist_ok=True)
                 tokenizer = AutoTokenizer.from_pretrained(
-                    hugging_face_config.name_or_path,
+                    pretrained_model_name_or_path=hugging_face_config.name_or_path,
                     revision=hugging_face_config.revision,
-                    cache_dir=cache_dir
+                    cache_dir=cache_dir,
+                    local_files_only=True #是否使用本地缓存文件
                 ) # type: ignore
                 self._tokenizers[cache_key] = tokenizer
+                log.info(f"从hugging face获取到的tokenizer:{type(tokenizer).__name__}")
                 return tokenizer
             except Exception as e:
                 raise AgentException(f"通过huggingFace 加载 tokenizer失败：{type(e).__name__}") from e
