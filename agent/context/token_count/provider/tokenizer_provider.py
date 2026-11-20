@@ -1,4 +1,3 @@
-import logging
 from threading import RLock
 from typing import ClassVar, Sequence, Any
 
@@ -7,8 +6,9 @@ from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from transformers import PreTrainedTokenizerBase, AutoTokenizer
 
-from agent.context.domain import TokenCountResult, HuggingFaceConfig, TokenCountAccuracy
-from agent.context.domain.token_count_result import TokenCountCompleteness
+from agent.context.domain import HuggingFaceConfig
+from agent.context.token_count import TokenCountResult, TokenCountAccuracy
+from agent.context.token_count.token_count_result import TokenCountCompleteness
 from agent.context.token_count.provider.base_token_count_provider import BaseTokenCountProvider
 from agent.model import ModelConfig, ModelConnectionConfig
 from common.utils import AgentUtils

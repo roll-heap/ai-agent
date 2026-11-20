@@ -1,10 +1,14 @@
 import json
+import math
 from typing import Sequence
 
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage, AIMessage, ToolMessage
 
+from agent.context.domain import ContextBudgetConfig
+from agent.context.token_count.token_count_result import TokenCountCompleteness, TokenCountAccuracy
+from agent.context.token_count import TokenCounter
 from agent.history import ConversationTurn
 from agent.init import SummaryRuntimeConfig
 from agent.profile import ProfileFactory
@@ -16,8 +20,12 @@ from exception import AgentException
 class SummaryManager:
 
     def __init__(self):
+        """初始化摘要管理器"""
         self.sys_prompt = settings.summary_sys_prompt
         self.runtime_config = self._init_runtime_config(settings)
+        self.token_counter=TokenCounter()
+        self.budget_config=ContextBudgetConfig()
+
 
 
     @staticmethod
@@ -52,7 +60,8 @@ class SummaryManager:
             SystemMessage(content=self.sys_prompt),
             HumanMessage(content=f"请根据以下原始对话生成完整摘要：\n\n{history_text.text}")
         ]
-        response=await self.runtime_config.model.ainvoke(messages)
+        self._check_input_budget(messages)
+        response = await self.runtime_config.model.ainvoke(messages)
         if not isinstance(response.content, str):
             raise AgentException("摘要模型返回了非文本内容")
         summary=response.content.strip()
@@ -99,3 +108,50 @@ class SummaryManager:
         if not content.strip():
             return ""
         return f"{role}:{content}"
+
+    def _calculate_safety_tokens(self, token_result) -> int:
+        """计算摘要请求的安全余量"""
+
+        if token_result.accuracy == TokenCountAccuracy.EXACT:
+            return self.budget_config.safety_base_tokens
+
+        estimated_tokens = math.ceil(
+            token_result.total_tokens * self.budget_config.safety_ratio
+        )
+
+        return self.budget_config.safety_base_tokens + estimated_tokens
+
+    def _check_input_budget(
+            self,
+            messages: list[BaseMessage],
+    ) -> None:
+        """检查摘要模型输入是否满足上下文预算"""
+
+        model_config = self.runtime_config.model_config
+        connection_config = self.runtime_config.connection_config
+
+        token_result = self.token_counter.count(
+            messages=messages,
+            model_config=model_config,
+            connection_config=connection_config,
+            tool_definitions=(),
+            add_generation_prompt=True,
+        )
+
+        if token_result.completeness == TokenCountCompleteness.INCOMPLETE:
+            raise AgentException("摘要模型输入Token统计不完整，无法进行预算判断")
+        safety_tokens = self._calculate_safety_tokens(token_result)
+        required_tokens = (
+                token_result.total_tokens
+                + model_config.max_output_tokens
+                + safety_tokens
+        )
+
+        if required_tokens > model_config.context_window:
+            raise AgentException(
+                "摘要输入超过模型上下文预算："
+                f"输入Token={token_result.total_tokens},"
+                f"输出预留={model_config.max_output_tokens},"
+                f"安全余量={safety_tokens},"
+                f"上下文窗口={model_config.context_window}"
+            )

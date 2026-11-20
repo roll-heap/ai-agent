@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from agent.context.domain import TokenCountResult
+from agent.context.token_count import TokenCountResult
 
 
 @dataclass

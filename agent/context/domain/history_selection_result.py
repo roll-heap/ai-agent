@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from langchain_core.messages import BaseMessage
 
-from agent.context.domain import TokenCountResult
+from agent.context.token_count import TokenCountResult
 from agent.history import ConversationTurn
 
 

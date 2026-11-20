@@ -1,4 +1,5 @@
 from agent.context import ContextManager
+from agent.context.domain import ContextBudgetConfig
 from agent.context.token_count import TokenCounter
 from agent.factory import AgentFactory
 from agent.history import HistoryTurnParser
@@ -11,7 +12,8 @@ from main.agent_executor import AgentExecutor
 def init_context_component() -> ContextManager:
     context_manager = ContextManager(
         history_turn_parser=HistoryTurnParser(),
-        token_counter = TokenCounter()
+        token_counter = TokenCounter(),
+        budget_config = ContextBudgetConfig()
     )
     return context_manager
 

@@ -3,10 +3,10 @@ from collections.abc import Sequence
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
-from agent.context.domain import ContextBudgetConfig, SummeryState
+from agent.context.domain import ContextBudgetConfig, SummeryState, HistorySelectionResult
 from agent.context.context import AgentContext
-from agent.context.domain import HistorySelectionResult, TokenCountResult, TokenCountAccuracy
-from agent.context.domain.token_count_result import TokenCountCompleteness
+from agent.context.token_count import TokenCountResult, TokenCountAccuracy
+from agent.context.token_count.token_count_result import TokenCountCompleteness
 from agent.context.token_count import TokenCounter
 from agent.history import HistoryTurnParser, ConversationTurn
 from agent.init import AgentRuntimeConfig

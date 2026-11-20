@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Sequence
 from langchain_core.messages import BaseMessage
 from langchain_core.tools import BaseTool
 
-from agent.context.domain import TokenCountResult
+from agent.context.token_count import TokenCountResult
 from agent.model import ModelConfig, ModelConnectionConfig
 
 
