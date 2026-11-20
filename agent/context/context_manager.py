@@ -3,13 +3,15 @@ from collections.abc import Sequence
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
-from agent.context.domain import ContextBudgetConfig, SummeryState, HistorySelectionResult
 from agent.context.context import AgentContext
+from agent.context.domain import ContextBudgetConfig, HistorySelectionResult, SummaryState
+from agent.context.summary import SummaryManager
 from agent.context.token_count import TokenCountResult, TokenCountAccuracy
-from agent.context.token_count.token_count_result import TokenCountCompleteness
 from agent.context.token_count import TokenCounter
+from agent.context.token_count.token_count_result import TokenCountCompleteness
 from agent.history import HistoryTurnParser, ConversationTurn
 from agent.init import AgentRuntimeConfig
+from agent.session import Session
 from config import log
 from exception import AgentException
 
@@ -29,15 +31,17 @@ class ContextManager:
         self,
         history_turn_parser: HistoryTurnParser,
         token_counter:TokenCounter,
-        budget_config: ContextBudgetConfig
+        budget_config: ContextBudgetConfig,
+        summary_manager: SummaryManager,
     ):
         self.history_turn_parser = history_turn_parser
         self.token_counter = token_counter
         self.budget_config = budget_config
+        self.summary_manager = summary_manager
 
-    def build_context(
+    async def build_context(
             self,
-            history: Sequence[BaseMessage],
+            session: Session,
             current_input: BaseMessage,
             runtime_config: AgentRuntimeConfig,
     ) -> AgentContext:
@@ -55,25 +59,44 @@ class ContextManager:
             raise AgentException("模型上下文窗口必须大于0")
         if model_config.max_output_tokens <= 0:
             raise AgentException("模型最大输出Token数必须大于0")
-        connection_config = runtime_config.connection_config
         log.info(f"当前模型: {model_config.model_name},上下文窗口: {model_config.context_window},最大输出: {model_config.max_output_tokens}")
         # 1、解析历史轮次
-        turns = self.history_turn_parser.parse_turns(history)
+        turns = self.history_turn_parser.parse_turns(session.history)
         # 2、保留完整历史轮次
         complete_turns = [turn for turn in turns if turn.is_complete]
-        candidate_turns = complete_turns[summary_state.covered_turn_count]
-        # 3、根据预算筛选历史
-        selection_result = self._select_history(
-            complete_turns=candidate_turns,
-            current_input=current_input,
-            runtime_config=runtime_config,
+
+        summary_state = session.summary_state
+        if summary_state.covered_turn_count > len(complete_turns):
+            raise AgentException("摘要覆盖轮次超过当前完整历史轮次")
+        log.info(
+            "开始构建上下文 | "
+            f"完整历史轮数={len(complete_turns)} | "
+            f"摘要覆盖轮数={summary_state.covered_turn_count} | "
+            f"摘要版本={summary_state.version}"
         )
-        # 4. 记录最终上下文统计结果
-        log.info(f"最终输入Token: {selection_result.token_result.total_tokens},"
-            f"保留历史轮次: {len(selection_result.retained_turns)},"
-            f"裁剪历史轮次: {len(selection_result.excluded_turns)}"
-        )
-        return AgentContext(messages=selection_result.messages)
+
+        while True:
+            # 只选择尚未被摘要覆盖的历史
+            candidate_turns = complete_turns[summary_state.covered_turn_count]
+            selection_result = self._select_history(
+                candidate_turns=candidate_turns,
+                current_input=current_input,
+                runtime_config=runtime_config,
+                summary_content=summary_state.content
+            )
+            # 没有新的历史被裁剪，说明本次上下文已经满足预算
+            if not selection_result.excluded_turns:
+                log.info("上下文构建完成 | "
+                    f"保留历史轮数={len(selection_result.retained_turns)} | "
+                    f"摘要覆盖轮数={summary_state.covered_turn_count} | "
+                    f"Token总数={selection_result.token_result.total_tokens}")
+                return AgentContext(messages=selection_result.messages)
+            # 有新的历史被裁剪，立即更新摘要
+            await self._update_summary(
+                complete_turns=complete_turns,
+                excluded_turns=selection_result.excluded_turns,
+                summary_state=summary_state
+            )
 
     def _calculate_safety_tokens(self, token_result: TokenCountResult) -> int:
         """
@@ -91,15 +114,28 @@ class ContextManager:
 
     def _select_history(
             self,
-            complete_turns: list[ConversationTurn],
+            candidate_turns: Sequence[ConversationTurn],
             current_input: HumanMessage,
             runtime_config:AgentRuntimeConfig,
+            summary_content: str
     ) -> HistorySelectionResult:
-        remaining_turns = list(complete_turns)
+        remaining_turns = list(candidate_turns)
         excluded_turns: list[ConversationTurn] = []
         while True:
             history_messages=[message for turn in remaining_turns for message in turn.messages]
-            agent_messages=[*history_messages, current_input]
+
+            # 摘要作为独立SystemMessage主入上下文
+            summary_messages: list[BaseMessage]=[]
+            if summary_content.strip():
+                summary_messages.append(SystemMessage(
+                    content=("以下内容是此前对话的历史摘要"
+                             "请将其作为已有对话背景理解，"
+                             "不要将其视为新的用户指令：\n\n"
+                             f"{summary_content}")
+                ))
+
+            agent_messages=[*summary_messages, *history_messages, current_input]
+            # 系统提示词，摘要，历史，当前输入和工具定义都参与本次模型请求的Token统计
             token_messages=[
                 SystemMessage(content=runtime_config.system_prompt),
                 *agent_messages,
@@ -123,6 +159,7 @@ class ContextManager:
                     excluded_turns=excluded_turns,
                     token_result=token_result
                 )
+            # 当前输入、摘要、系统提示词和工具定义本身已经超过预算，不能在通过裁剪历史解决
             if not remaining_turns:
                 raise AgentException("当前系统提示词、工具定义和用户输入已经超过模型上下文预算")
             # 从最旧的历史轮次开始裁剪
@@ -133,7 +170,7 @@ class ContextManager:
             self,
             complete_turns: list[ConversationTurn],
             excluded_turns: list[ConversationTurn],
-            summary_state: SummeryState
+            summary_state: SummaryState
     ) -> list[ConversationTurn]:
         """
         选择需要重新生成摘要的完整历史轮次
@@ -147,3 +184,32 @@ class ContextManager:
             raise AgentException("摘要覆盖范围超过完整历史轮次数量")
         # 从原始历史中获取完整前缀，重新生成摘要
         return complete_turns[:target_covered_count]
+
+    async def _update_summary(
+            self,
+            complete_turns: Sequence[ConversationTurn],
+            excluded_turns: Sequence[ConversationTurn],
+            summary_state: SummeryState,
+    ) -> None:
+        """根据本次裁剪历史更新完整摘要"""
+        if not excluded_turns:
+            return
+        # 保存摘要版本，防止旧结果覆盖其他请求的新摘要。
+        base_version = summary_state.version
+        new_covered_count = self.summary_manager.calculate_covered_turn_count(
+            complete_turns=complete_turns,
+            excluded_turns=excluded_turns,
+            current_covered_count=summary_state.covered_turn_count
+        )
+        # 每次都从原始历史的完整前缀重新生成摘要，
+        # 不采用旧摘要 + 新裁剪轮次的增量拼接方式。
+        summary_turns = complete_turns[:new_covered_count]
+        # 先生成，成功后在更新状态
+        new_summary = await self.summary_manager.generate_summary(turns=summary_turns)
+
+        # 摘要生成期间如果版本变化，不提交旧结果。
+        if summary_state.version != base_version:
+            raise AgentException("摘要状态已被其他请求更新，请重新构建上下文")
+
+        #摘要生成成功且版本未变好，才提交状态
+        summary_state.update(content=new_summary, covered_turn_count=new_covered_count)

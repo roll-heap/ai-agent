@@ -22,6 +22,8 @@ class ConversationHandler:
         if not request_messages:
             raise AgentException("本轮上下文不能为空")
         current_user_message = request_messages[-1]
+        if not isinstance(current_user_message, HumanMessage):
+            raise AgentException("本轮上下文最后一条消息必须是HumanMessage")
         request_message_count = len(request_messages)
         log.info(f"Agent 回合开始 | request_messages_count={request_message_count} | question={current_user_message}")
         # 执行 Agent
@@ -33,7 +35,7 @@ class ConversationHandler:
             )
         except Exception as e:
             # 本轮执行失败只保存用户消息
-            session.history.append(current_user_message)
+            session.append_messages(current_user_message)
             log.exception(f"Agent 执行失败，本轮只保存用户消息，history:{session.history},{e}")
             raise
 
@@ -42,7 +44,7 @@ class ConversationHandler:
         # 提取最终回答
         final_answer = self.get_final_answer(final_messages)
         # 将本轮新增消息追加到完整会话历史。
-        session.history.extend(new_messages)
+        session.append_messages(new_messages)
         log.info(f"Agent 历史已追加 | 新增消息={len(new_messages)} | 历史消息总数={len(session.history)}")
 
         log.info(f"Agent 回合完成 | history_messages={len(session.history)} | final_answer={final_answer}")

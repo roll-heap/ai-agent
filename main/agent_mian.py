@@ -1,5 +1,8 @@
+import asyncio
+
 from agent.context import ContextManager
 from agent.context.domain import ContextBudgetConfig
+from agent.context.summary import SummaryManager
 from agent.context.token_count import TokenCounter
 from agent.factory import AgentFactory
 from agent.history import HistoryTurnParser
@@ -13,11 +16,12 @@ def init_context_component() -> ContextManager:
     context_manager = ContextManager(
         history_turn_parser=HistoryTurnParser(),
         token_counter = TokenCounter(),
-        budget_config = settings.get_context_budget_config()
+        budget_config = settings.get_context_budget_config(),
+        summary_manager=SummaryManager()
     )
     return context_manager
 
-def main():
+async def main():
     # 1. 创建 Agent Profile 注册表，根据.env读取到settings中，将配置注入到Factory中，包括Model配置，agent的系统配置
     profile_factory = ProfileFactory(settings)
     # 获取注册器，根据注册器可以获取不同模型的配置
@@ -62,7 +66,7 @@ def main():
                 print(f"已切换到 Agent：{current_profile.name}")
                 continue
             # 6. 使用当前 Agent 执行本轮请求
-            answer = executor.execute(session=session, question=question, profile=current_profile)
+            await executor.execute(session=session, question=question, profile=current_profile)
         except KeyboardInterrupt:
             print("\n程序已退出")
             break
@@ -71,4 +75,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

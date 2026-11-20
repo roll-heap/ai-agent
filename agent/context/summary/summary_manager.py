@@ -154,7 +154,7 @@ class SummaryManager:
             )
 
     @staticmethod
-    def _calculate_covered_turn_count(
+    def calculate_covered_turn_count(
             complete_turns: Sequence[ConversationTurn],
             excluded_turns: Sequence[ConversationTurn],
             current_covered_count: int
