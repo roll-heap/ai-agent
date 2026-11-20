@@ -1,7 +1,6 @@
 import asyncio
 
 from agent.context import ContextManager
-from agent.context.domain import ContextBudgetConfig
 from agent.context.summary import SummaryManager
 from agent.context.token_count import TokenCounter
 from agent.factory import AgentFactory
