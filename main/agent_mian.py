@@ -13,7 +13,7 @@ def init_context_component() -> ContextManager:
     context_manager = ContextManager(
         history_turn_parser=HistoryTurnParser(),
         token_counter = TokenCounter(),
-        budget_config = ContextBudgetConfig()
+        budget_config = settings.get_context_budget_config()
     )
     return context_manager
 

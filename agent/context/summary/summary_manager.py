@@ -24,7 +24,7 @@ class SummaryManager:
         self.sys_prompt = settings.summary_sys_prompt
         self.runtime_config = self._init_runtime_config(settings)
         self.token_counter=TokenCounter()
-        self.budget_config=ContextBudgetConfig()
+        self.budget_config = settings.get_context_budget_config()
 
 
 

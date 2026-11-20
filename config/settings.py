@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import Field, BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from agent.context.domain import HuggingFaceConfig
+from agent.context.domain import HuggingFaceConfig, ContextBudgetConfig
 
 # 获取当前文件（settings.py）所在目录的父目录（即项目根目录）
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +32,18 @@ class AgentSysPrompt(BaseModel):
     system_prompt: str
     tools: list[str]
 
+from pydantic import BaseModel, Field
+
+
+from pydantic import BaseModel, Field
+
+
+class ContextBudgetSettings(BaseModel):
+    """上下文预算配置"""
+    safety_base_tokens: int = Field(default=256,ge=0,description="基础安全余量",)
+    safety_ratio: float = Field(default=0.1,ge=0,description="估算Token误差补偿比例",)
+
+
 class Setting(BaseSettings):
     """应用配置，支持从 .env 和环境变量加载"""
     app_name: str = Field(default="agent", alias="APP_NAME")
@@ -48,6 +60,8 @@ class Setting(BaseSettings):
     models: dict[str, ModelSettings] = Field(default_factory=dict, validation_alias="MODELS")
     agent_model_map: dict[str, str] = Field(default_factory=dict, validation_alias="AGENT_MODEL_MAP")
     agent_profile: dict[str, AgentSysPrompt] = Field(default_factory=dict, validation_alias="AGENT_PROFILES")
+
+    context_budget: ContextBudgetSettings = Field(default_factory=ContextBudgetSettings)
 
     summary_model:str=Field(validation_alias="SUMMARY_MODEL")
     summary_sys_prompt: str=Field(validation_alias="SUMMARY_SYS_PROMPT")
@@ -71,7 +85,14 @@ class Setting(BaseSettings):
         extra="ignore",                 # 忽略未定义的额外字段
         env_prefix="",                  # 无前缀（保持默认）
         validate_default=False,         # 不验证默认值（提升启动速度）
+        env_nested_delimiter="__",      # 使用 Pydantic Settings 的嵌套环境变量，需要确保配置了
     )
+
+    def get_context_budget_config(self) -> ContextBudgetConfig:
+        return ContextBudgetConfig(
+            safety_base_tokens=self.context_budget.safety_base_tokens,
+            safety_ratio=self.context_budget.safety_ratio,
+        )
 
 
 
