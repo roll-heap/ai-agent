@@ -49,6 +49,8 @@ class Setting(BaseSettings):
     agent_model_map: dict[str, str] = Field(default_factory=dict, validation_alias="AGENT_MODEL_MAP")
     agent_profile: dict[str, AgentSysPrompt] = Field(default_factory=dict, validation_alias="AGENT_PROFILES")
 
+    summary_model:str=Field(validation_alias="SUMMARY_MODEL")
+    summary_sys_prompt: str=Field(validation_alias="SUMMARY_SYS_PROMPT")
 
 
     # class Config:

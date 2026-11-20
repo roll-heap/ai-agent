@@ -15,7 +15,7 @@ class ProfileFactory:
     def __init__(self,settings: Setting):
         self.settings = settings
 
-    def _get_model_configs(self, model_key: str) -> tuple[ModelConfig, ModelConnectionConfig]:
+    def get_model_configs(self, model_key: str) -> tuple[ModelConfig, ModelConnectionConfig]:
         model_settings = self.settings.models.get(model_key)
         if model_settings is None:
             raise AgentException(f"模型配置不存在：{model_key}")
@@ -53,7 +53,7 @@ class ProfileFactory:
                 raise AgentException(f"Agent Profile配置不存在：{profile_name}")
             tool_names = agent_profile.tools
             tools = ProfileFactory._get_tools(tool_names)
-            model_config, connection_config = self._get_model_configs(model_key)
+            model_config, connection_config = self.get_model_configs(model_key)
             profiles.append(AgentProfile(
                 name=profile_name,
                 description=agent_profile.description,

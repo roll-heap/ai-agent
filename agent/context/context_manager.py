@@ -1,9 +1,14 @@
+import math
 from collections.abc import Sequence
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+
+from agent.context.domain import ContextBudgetConfig, SummeryState
 from agent.context.context import AgentContext
+from agent.context.domain import HistorySelectionResult, TokenCountResult, TokenCountAccuracy
+from agent.context.domain.token_count_result import TokenCountCompleteness
 from agent.context.token_count import TokenCounter
-from agent.history import HistoryTurnParser
+from agent.history import HistoryTurnParser, ConversationTurn
 from agent.init import AgentRuntimeConfig
 from config import log
 from exception import AgentException
@@ -24,9 +29,11 @@ class ContextManager:
         self,
         history_turn_parser: HistoryTurnParser,
         token_counter:TokenCounter,
+        budget_config: ContextBudgetConfig
     ):
         self.history_turn_parser = history_turn_parser
         self.token_counter = token_counter
+        self.budget_config = budget_config
 
     def build_context(
             self,
@@ -54,32 +61,89 @@ class ContextManager:
         turns = self.history_turn_parser.parse_turns(history)
         # 2、保留完整历史轮次
         complete_turns = [turn for turn in turns if turn.is_complete]
-        # 3、组装历史消息和当前输入
-        history_messages = [message for turn in complete_turns for message in turn.messages]
-        agent_messages = [
-            *history_messages,
-            current_input
-        ]
-        token_messages = [
-            SystemMessage(content=runtime_config.system_prompt),
-            *agent_messages,
-        ]
-        # 4、组装用于 Token 统计的完整消息
-        current_token_result = self.token_counter.count(
-            messages=token_messages,
-            model_config=model_config,
-            connection_config=connection_config,
-            tool_definitions=runtime_config.tools,
-            add_generation_prompt=True
+        candidate_turns = complete_turns[summary_state.covered_turn_count]
+        # 3、根据预算筛选历史
+        selection_result = self._select_history(
+            complete_turns=candidate_turns,
+            current_input=current_input,
+            runtime_config=runtime_config,
         )
-        # 5、获取本次请求的输出预留预算
-        output_token_budget = model_config.max_output_tokens
-        log.info(
-            f"候选输入Token: {current_token_result.total_tokens},"
-            f"统计精度: {current_token_result.accuracy.value},"
-            f"统计完整性: {current_token_result.completeness.value},"
-            f"输出预留预算: {output_token_budget},"
-            f"完整历史轮次: {len(complete_turns)},"
-            f"排除不完整轮次: {len(turns) - len(complete_turns)}"
+        # 4. 记录最终上下文统计结果
+        log.info(f"最终输入Token: {selection_result.token_result.total_tokens},"
+            f"保留历史轮次: {len(selection_result.retained_turns)},"
+            f"裁剪历史轮次: {len(selection_result.excluded_turns)}"
         )
-        return AgentContext(messages=agent_messages)
+        return AgentContext(messages=selection_result.messages)
+
+    def _calculate_safety_tokens(self, token_result: TokenCountResult) -> int:
+        """
+        计算上下文安全余量
+        """
+        # 精确统计只保留基础安全余量
+        if token_result.accuracy == TokenCountAccuracy.EXACT:
+            return self.budget_config.safety_base_tokens
+        # 估算统计暂时将全部Token视为不确定Token
+        uncertain_tokens=token_result.total_tokens
+        # 计算估算补偿误差
+        estimated_tokens=math.ceil(uncertain_tokens * self.budget_config.safety_ratio)
+        return self.budget_config.safety_base_tokens + estimated_tokens
+
+
+    def _select_history(
+            self,
+            complete_turns: list[ConversationTurn],
+            current_input: HumanMessage,
+            runtime_config:AgentRuntimeConfig,
+    ) -> HistorySelectionResult:
+        remaining_turns = list(complete_turns)
+        excluded_turns: list[ConversationTurn] = []
+        while True:
+            history_messages=[message for turn in remaining_turns for message in turn.messages]
+            agent_messages=[*history_messages, current_input]
+            token_messages=[
+                SystemMessage(content=runtime_config.system_prompt),
+                *agent_messages,
+            ]
+            token_result=self.token_counter.count(
+                messages=token_messages,
+                model_config=runtime_config.model_config,
+                connection_config=runtime_config.connection_config,
+                tool_definitions=runtime_config.tools,
+                add_generation_prompt=True
+            )
+            if token_result.completeness == TokenCountCompleteness.INCOMPLETE:
+                raise AgentException("候选上下文Token统计不完整，无法进行预算判断")
+            # 获取安全余量
+            safety_tokens=self._calculate_safety_tokens(token_result)
+            required_tokens=token_result.total_tokens + runtime_config.model_config.max_output_tokens + safety_tokens
+            if required_tokens <= runtime_config.model_config.context_window:
+                return HistorySelectionResult(
+                    messages=agent_messages,
+                    retained_turns=remaining_turns,
+                    excluded_turns=excluded_turns,
+                    token_result=token_result
+                )
+            if not remaining_turns:
+                raise AgentException("当前系统提示词、工具定义和用户输入已经超过模型上下文预算")
+            # 从最旧的历史轮次开始裁剪
+            excluded_turns.append(remaining_turns.pop(0))
+
+
+    def _select_summary_turns(
+            self,
+            complete_turns: list[ConversationTurn],
+            excluded_turns: list[ConversationTurn],
+            summary_state: SummeryState
+    ) -> list[ConversationTurn]:
+        """
+        选择需要重新生成摘要的完整历史轮次
+        """
+        # 本次没有新增裁剪，不需要更新摘要
+        if not excluded_turns:
+            return []
+        # 计算新的摘要覆盖范围
+        target_covered_count = summary_state.covered_turn_count + len(excluded_turns)
+        if target_covered_count > len(complete_turns):
+            raise AgentException("摘要覆盖范围超过完整历史轮次数量")
+        # 从原始历史中获取完整前缀，重新生成摘要
+        return complete_turns[:target_covered_count]
