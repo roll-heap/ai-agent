@@ -6,7 +6,6 @@ from langchain.chat_models import init_chat_model
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage, AIMessage, ToolMessage
 
-from agent.context.domain import ContextBudgetConfig
 from agent.context.token_count.token_count_result import TokenCountCompleteness, TokenCountAccuracy
 from agent.context.token_count import TokenCounter
 from agent.history import ConversationTurn
@@ -25,8 +24,6 @@ class SummaryManager:
         self.runtime_config = self._init_runtime_config(settings)
         self.token_counter=TokenCounter()
         self.budget_config = settings.get_context_budget_config()
-
-
 
     @staticmethod
     def _init_runtime_config(setting: Setting) -> SummaryRuntimeConfig:
@@ -155,3 +152,34 @@ class SummaryManager:
                 f"安全余量={safety_tokens},"
                 f"上下文窗口={model_config.context_window}"
             )
+
+    @staticmethod
+    def _calculate_covered_turn_count(
+            complete_turns: Sequence[ConversationTurn],
+            excluded_turns: Sequence[ConversationTurn],
+            current_covered_count: int
+    ) -> int:
+        """计算本次摘要新的覆盖轮数"""
+        if current_covered_count < 0:
+            raise AgentException("当前摘要覆盖轮数不能小于0")
+        if current_covered_count > len(complete_turns):
+            raise AgentException("当前摘要覆盖轮数超过完整历史轮次")
+        if not excluded_turns:
+            return current_covered_count
+        # 通过对象身份查找，避免dataclass值相等导致匹配错误
+        excluded_indexes=[]
+        for excluded_turn in excluded_turns:
+            index = next((i for i, turn in enumerate(complete_turns)
+                          if turn is excluded_turn),None)
+            if index is None:
+                raise AgentException("被裁剪的历史轮次不属于当前完整历史")
+            excluded_indexes.append(index)
+        # 不允许重复轮次
+        if len(set(excluded_indexes)) != len(excluded_indexes):
+            raise AgentException("被裁剪的历史轮次存在重复")
+        excluded_indexes.sort()
+        # 新裁剪的轮次必须紧接旧摘要覆盖边界
+        expected_indexes = list(range(current_covered_count, current_covered_count+len(excluded_indexes)))
+        if excluded_indexes != expected_indexes:
+            raise AgentException("本次裁剪历史与当前摘要覆盖边界不连续")
+        return current_covered_count + len(expected_indexes)
