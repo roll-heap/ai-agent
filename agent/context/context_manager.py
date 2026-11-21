@@ -60,6 +60,8 @@ class ContextManager:
         if model_config.max_output_tokens <= 0:
             raise AgentException("模型最大输出Token数必须大于0")
         log.info(f"当前模型: {model_config.model_name},上下文窗口: {model_config.context_window},最大输出: {model_config.max_output_tokens}")
+        if not session.history:
+            return AgentContext(messages=[current_input])
         # 1、解析历史轮次
         turns = self.history_turn_parser.parse_turns(session.history)
         # 2、保留完整历史轮次
@@ -77,7 +79,7 @@ class ContextManager:
 
         while True:
             # 只选择尚未被摘要覆盖的历史
-            candidate_turns = complete_turns[summary_state.covered_turn_count]
+            candidate_turns = complete_turns[summary_state.covered_turn_count:]
             selection_result = self._select_history(
                 candidate_turns=candidate_turns,
                 current_input=current_input,
@@ -119,7 +121,10 @@ class ContextManager:
             runtime_config:AgentRuntimeConfig,
             summary_content: str
     ) -> HistorySelectionResult:
-        remaining_turns = list(candidate_turns)
+        """
+        选择保留哪些历史轮次，确定 excluded_turns。
+        """
+        remaining_turns = candidate_turns
         excluded_turns: list[ConversationTurn] = []
         while True:
             history_messages=[message for turn in remaining_turns for message in turn.messages]
@@ -165,33 +170,15 @@ class ContextManager:
             # 从最旧的历史轮次开始裁剪
             excluded_turns.append(remaining_turns.pop(0))
 
-
-    def _select_summary_turns(
-            self,
-            complete_turns: list[ConversationTurn],
-            excluded_turns: list[ConversationTurn],
-            summary_state: SummaryState
-    ) -> list[ConversationTurn]:
-        """
-        选择需要重新生成摘要的完整历史轮次
-        """
-        # 本次没有新增裁剪，不需要更新摘要
-        if not excluded_turns:
-            return []
-        # 计算新的摘要覆盖范围
-        target_covered_count = summary_state.covered_turn_count + len(excluded_turns)
-        if target_covered_count > len(complete_turns):
-            raise AgentException("摘要覆盖范围超过完整历史轮次数量")
-        # 从原始历史中获取完整前缀，重新生成摘要
-        return complete_turns[:target_covered_count]
-
     async def _update_summary(
             self,
             complete_turns: Sequence[ConversationTurn],
             excluded_turns: Sequence[ConversationTurn],
-            summary_state: SummeryState,
+            summary_state: SummaryState,
     ) -> None:
-        """根据本次裁剪历史更新完整摘要"""
+        """
+        调用 SummaryManager 生成摘要，并更新 SummaryState
+        """
         if not excluded_turns:
             return
         # 保存摘要版本，防止旧结果覆盖其他请求的新摘要。
