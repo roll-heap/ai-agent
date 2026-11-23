@@ -60,6 +60,7 @@ class ContextManager:
         if model_config.max_output_tokens <= 0:
             raise AgentException("模型最大输出Token数必须大于0")
         log.info(f"当前模型: {model_config.model_name},上下文窗口: {model_config.context_window},最大输出: {model_config.max_output_tokens}")
+        # 首轮回话没有历史消息
         if not session.history:
             return AgentContext(messages=[current_input])
         # 1、解析历史轮次
