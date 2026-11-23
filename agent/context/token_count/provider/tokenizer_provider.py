@@ -150,7 +150,8 @@ class TokenizerProvider(BaseTokenCountProvider):
                             "type":"function",
                             "function":{
                                 "name":tool_name,
-                                "arguments":tool_arguments
+                                # Qwen 的 chat template 会通过 items 遍历工具参数。
+                                "arguments": tool_arguments
                             }
                         }
                         tool_calls.append(tool_call)
@@ -207,6 +208,8 @@ class TokenizerProvider(BaseTokenCountProvider):
             if not isinstance(token_ids, list):
                 raise AgentException("chat template未返回预期的Token Id列表")
             return token_ids
+        except TypeError as e:
+            raise AgentException(f"chat template渲染失败：{type(e).__name__}") from e
         except Exception as e:
             raise AgentException(f"chat template渲染失败：{type(e).__name__}") from e
 

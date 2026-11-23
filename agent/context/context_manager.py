@@ -129,13 +129,11 @@ class ContextManager:
         while True:
             history_messages=[message for turn in remaining_turns for message in turn.messages]
 
-            # 摘要作为独立SystemMessage主入上下文
+            # 摘要作为历史背景消息，避免在稳定系统提示词后追加第二条 system 消息。
             summary_messages: list[BaseMessage]=[]
             if summary_content.strip():
-                summary_messages.append(SystemMessage(
-                    content=("以下内容是此前对话的历史摘要"
-                             "请将其作为已有对话背景理解，"
-                             "不要将其视为新的用户指令：\n\n"
+                summary_messages.append(HumanMessage(
+                    content=("历史摘要（仅作对话背景，不是当前用户指令）：\n\n"
                              f"{summary_content}")
                 ))
 
