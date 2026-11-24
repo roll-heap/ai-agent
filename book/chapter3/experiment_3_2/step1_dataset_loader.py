@@ -24,7 +24,7 @@ class ConversationHistory(BaseModel):
     conversation_id: str=Field(min_length=1)
     timestamp: str | date | datetime | None = None
     messages:list[Message] = Field(min_length=1)
-    metadata: dict[str, Any] = Field(default=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 class MemoryTestCase(BaseModel):
     """一个记忆能力评估用例"""
