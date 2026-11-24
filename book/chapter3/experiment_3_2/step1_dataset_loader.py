@@ -1,8 +1,7 @@
-import argparse
+from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
-from sys import path
-from typing import Literal, Counter
+from typing import Literal, Any
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -25,6 +24,7 @@ class ConversationHistory(BaseModel):
     conversation_id: str=Field(min_length=1)
     timestamp: str | date | datetime | None = None
     messages:list[Message] = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default=dict)
 
 class MemoryTestCase(BaseModel):
     """一个记忆能力评估用例"""
@@ -32,10 +32,13 @@ class MemoryTestCase(BaseModel):
     test_id: str=Field(min_length=1)
     category:Literal["layer1","layer2","layer3"]
     title:str=Field(min_length=1)
-
+    # 提供记忆形成所需的历史信息，记忆写入和更新
     conversation_histories: list[ConversationHistory]=Field(min_length=1)
+    # 检验最终记忆是否能支持回答，记忆检索和回答
     user_question:str=Field(min_length=1)
+    # 判断回答是否符合预期，结果评估
     evaluation_criteria:str=Field(min_length=1)
+    # 描述理想的 Agent 行为，结果分析
     expected_behavior:str|None=None
 
 def load_test_case(file_path: Path) -> MemoryTestCase:
@@ -84,8 +87,8 @@ def validate_dataset(cases: list[MemoryTestCase]) -> None:
         actual_count = actual_counts.get(layer, 0)
         if actual_count != expected_count:
             raise ValueError(f"{layer}数量错误，期望 {expected_count}，实际 {actual_count}")
-        if len(cases) != 60:
-            raise ValueError(f"测试用例总数错误: 期望60， 实际{len(cases)}")
+    if len(cases) != 60:
+        raise ValueError(f"测试用例总数错误: 期望60， 实际{len(cases)}")
 
 
 def print_summary(cases: list[MemoryTestCase]) -> None:
