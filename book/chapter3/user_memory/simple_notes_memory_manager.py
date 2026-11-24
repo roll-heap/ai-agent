@@ -18,7 +18,7 @@ class MemoryNote:
     content:str
     session_id:str
     created_at:str
-    update_at:str
+    updated_at:str
     tags:list[str]=field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -77,22 +77,18 @@ class SimpleNotesMemoryManager(BaseMemoryManager):
         """新增一条文本记忆并返回记忆ID"""
         if not isinstance(content, str) or not content.strip():
             raise ValueError("记忆内容必须是非空字符串")
-        if not session_id.strip():
-            raise ValueError("session_id不能为空")
-        tags = kwargs.get("tags",[])
-        if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
-            raise ValueError("记忆内容必须是非空字符串")
-        if not session_id.strip():
+        if not isinstance(session_id, str) or not session_id.strip():
             raise ValueError("session_id不能为空")
         tags = kwargs.get("tags",[])
         if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
             raise ValueError("tags必须是字符串列表")
+        current_time = datetime.now().isoformat()
         note = MemoryNote(
             note_id=str(uuid.uuid4()),
             content=content.strip(),
             session_id=session_id,
-            created_at=datetime.now().isoformat(),
-            update_at=datetime.now().isoformat(),
+            created_at=current_time,
+            updated_at=current_time,
             tags = tags.copy()
         )
         self.notes.append(note)
@@ -103,13 +99,13 @@ class SimpleNotesMemoryManager(BaseMemoryManager):
         """更新指定记忆，保留原始创建时间"""
         if not isinstance(content, str) or not content.strip():
             raise ValueError("记忆内容必须是非空字符串")
-        if not session_id.strip():
+        if not isinstance(session_id, str) or not session_id.strip():
             raise ValueError("session_id不能为空")
         for note in self.notes:
             if note.note_id == memory_id:
                 note.content = content.strip()
                 note.session_id = session_id
-                note.update_at = datetime.now().isoformat()
+                note.updated_at = datetime.now().isoformat()
                 #没有传入tags时保留原标签
                 if "tags" in kwargs:
                     tags = kwargs["tags"]
