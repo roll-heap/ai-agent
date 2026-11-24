@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "notes": [
+    {
+      "note_id": "d76e1497-7edb-4086-86bd-8e3b64de57e6",
+      "content": "用户在 A 公司担任 Java 架构师，主要负责订单系统，带领一支 8 人开发团队，目前团队正在推进微服务改造。在技术选择方面，用户比较喜欢使用 Spring Boot。",
+      "session_id": "session-enhanced",
+      "created_at": "2026-11-24T17:02:00.701093",
+      "updated_at": "2026-11-24T17:02:00.701093",
+      "tags": [
+        "experiment_3_2",
+        "career",
+        "team",
+        "technology"
+      ]
+    }
+  ]
+}
