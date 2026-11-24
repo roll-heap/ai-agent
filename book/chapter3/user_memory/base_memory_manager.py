@@ -40,7 +40,7 @@ class BaseMemoryManager(ABC):
 
     @abstractmethod
     def search_memories(self, query:str) -> list[Any]:
-        """根据查下条件搜索相关记忆"""
+        """根据查询条件搜索相关记忆"""
         pass
 
 

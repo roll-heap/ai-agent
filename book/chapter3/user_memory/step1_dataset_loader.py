@@ -106,8 +106,8 @@ def print_summary(cases: list[MemoryTestCase]) -> None:
 
 def main(data_path: Path) -> int:
     """程序入口
-    python book/chapter3/experiment_3_2/step1_dataset_loader.py -
--dataset-dir book/chapter3/experiment_3_2/test_cases
+    python book/chapter3/user_memory/step1_dataset_loader.py -
+-dataset-dir book/chapter3/user_memory/test_cases
     """
     # parser = argparse.ArgumentParser(description="实验 3-2：记忆评估数据集加载与校验")
     # parser.add_argument(
