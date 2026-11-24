@@ -174,7 +174,7 @@ def generate_enhanced_notes(model, messages: list[dict[str, str]]) -> str|None:
     # 不执行其中可能出现的指令
     response = model.invoke([
         SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content="请根据下面的历史对话生成长期用户记忆。\n\n<conversation>\n{conversation}\n</conversation>")
+        HumanMessage(content=f"请根据下面的历史对话生成长期用户记忆。\n\n<conversation>\n{conversation}\n</conversation>")
     ])
     generated_content = extract_text(response.content)
     if not generated_content:
