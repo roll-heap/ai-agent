@@ -97,7 +97,7 @@ def init_chat_model():
     复用项目现有模型配置和初始化逻辑
     """
     #使用项目当前assistant对应的模型配置
-    model_key = settings.agent_model_map.get("qwen3.5:4b")
+    model_key = settings.agent_model_map.get("qwen3_5-4b")
     if not model_key:
         raise ValueError("项目中配置不存在common对应的模型")
     # 复用项目已有的ProfileFactory获取模型配置
@@ -105,7 +105,7 @@ def init_chat_model():
     model_config, connection_config = profile_factory.get_model_configs(model_key)
     # 复用项目 Agent 已有的 ChatModel 初始化逻辑。
     # 这里只初始化模型，不创建完整 Agent。
-    model = Agent._init_llm(
+    model = Agent.init_model(
         model_config=model_config,
         connection_config=connection_config
     )

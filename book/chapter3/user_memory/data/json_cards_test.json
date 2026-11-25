@@ -1,13 +1,13 @@
 {
   "type": "json_cards",
-  "updated_at": "2026-11-25T11:05:21.052876",
+  "updated_at": "2026-11-25T11:07:32.357662",
   "memory_cards": {
     "work": {
       "company": {
         "name": {
           "value": "NewTech",
           "source": "session-002",
-          "updated_at": "2026-11-25T11:05:21.052863"
+          "updated_at": "2026-11-25T11:07:32.357642"
         }
       }
     }
