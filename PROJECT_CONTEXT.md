@@ -34,7 +34,7 @@
 项目记录的本地模型：
 
 - `qwen3.5:4b`
-- `openbmb/minicpm5:latest`
+- `openbmb/minicpm5:2b`
 - `qwen3.5:9b`
 
 模型通过 Ollama 本地使用。实际连接参数从环境变量或配置文件加载；不要在文档中记录 API Key、访问令牌等敏感值。
