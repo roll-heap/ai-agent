@@ -96,10 +96,10 @@ def init_chat_model():
     """
     复用项目现有模型配置和初始化逻辑
     """
-    #使用项目当前assistant对应的模型配置
+    #使用项目当前 minicpm5:2b 对应的模型配置
     model_key = settings.agent_model_map.get("minicpm5-2b")
     if not model_key:
-        raise ValueError("项目中配置不存在common对应的模型")
+        raise ValueError("项目中配置不存在 minicpm5:2b 对应的模型")
     # 复用项目已有的ProfileFactory获取模型配置
     profile_factory = ProfileFactory(settings)
     model_config, connection_config = profile_factory.get_model_configs(model_key)
