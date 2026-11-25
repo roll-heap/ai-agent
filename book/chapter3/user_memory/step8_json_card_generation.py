@@ -105,7 +105,7 @@ def init_chat_model():
     复用项目现有模型配置和初始化逻辑。
     """
     # 使用项目当前配置的 qwen3.5:4b 模型。
-    model_key = settings.agent_model_map.get("qwen3_5-4b")
+    model_key = settings.agent_model_map.get("minicpm5-2b")
     if not model_key:
         raise ValueError("项目中未找到 qwen3.5:4b 对应的模型配置")
     profile_factory = ProfileFactory(settings)
