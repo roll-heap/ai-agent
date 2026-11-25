@@ -1,0 +1,20 @@
+{
+  "type": "advanced_json_cards",
+  "updated_at": "2026-11-25T17:46:40.619028",
+  "categories": {
+    "subscription": {
+      "disney_plus": {
+        "value": "Disney+ subscription is active",
+        "backstory": "The user subscribed to Disney+ for personal use.",
+        "date_created": "2026-11-25",
+        "person": "User",
+        "relationship": "primary account holder",
+        "_metadata": {
+          "created_at": "2026-11-25T17:46:40.618425",
+          "updated_at": "2026-11-25T17:46:40.618425",
+          "source": "session-001"
+        }
+      }
+    }
+  }
+}
