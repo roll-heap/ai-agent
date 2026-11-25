@@ -128,7 +128,7 @@ class JsonCardsMemoryManager(BaseMemoryManager):
         for category, subcategories in self.memory_cards.items():
             for subcategory, items in subcategories.items():
                 for key, data in items.items():
-                    memory_path=f"{category}.{subcategories}.{key}"
+                    memory_path=f"{category}.{subcategory}.{key}"
                     value = str(data.get("value","")).casefold()
                     # 匹配类别，子类别，键或记忆值
                     if (query in category.casefold()
