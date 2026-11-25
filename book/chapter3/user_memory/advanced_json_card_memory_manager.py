@@ -321,9 +321,7 @@ if __name__ == "__main__":
         },
         session_id="session-001",
     )
-
     print("新增 Netflix 记忆ID:", netflix_id)
-
     # 新增 Disney+ 订阅记忆
     disney_id = manager.add_memory(
         content={
@@ -339,13 +337,10 @@ if __name__ == "__main__":
         },
         session_id="session-001",
     )
-
     print("新增 Disney+ 记忆ID:", disney_id)
-
     # 检索 Netflix 记忆
     results = manager.search_memories("Netflix")
     print("Netflix 检索结果：", results)
-
     # 更新 Netflix：订阅已经取消
     updated = manager.update_memory(
         memory_id=netflix_id,
@@ -364,18 +359,13 @@ if __name__ == "__main__":
         },
         session_id="session-002",
     )
-
     print("Netflix 更新结果：", updated)
-
     # 查看模型上下文，检查两张卡片是否都存在
     print("\n更新后的记忆上下文：")
     print(manager.get_context_string())
-
     # 删除 Netflix 记忆
     manager.delete_memory(netflix_id)
-
     # 重新实例化管理器，检查持久化结果
     manager = AdvancedJsonCardMemoryManager(storage_path)
-
     print("\n重新加载后的记忆：")
     print(manager.get_context_string())
