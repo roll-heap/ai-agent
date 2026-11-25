@@ -149,7 +149,7 @@ Enhanced Notes 当前检索为内容和标签的大小写不敏感子字符串�
 
 书中多轮订阅更新案例因本地 Ollama 模型运行耗时过长而暂停：Enhanced Notes 仅完成 Netflix 第一轮且结果质量部分通过；JSON Cards 订阅案例仅完成 Netflix 第一轮提取与持久化，Disney+、Max 后续轮次及最终汇总问题未执行。两项均标记为部分完成/中止，不作为完整实验结论。用户针对转账更正案例给出的理解是：普通 JSON Cards 在更新覆盖旧值且未保留历史时，无法可靠解释金额为何变更；这属于对存储格式局限的理论分析，不代表该转账案例已运行验证。
 
-当前继续学习 Advanced JSON Cards 的理论与数据结构，先理解 `backstory`、`person`、`relationship` 和时间信息如何补充基础 JSON Cards 的上下文与消歧能力；暂不要求运行本地模型，也不提前修改项目代码。60 个用例端到端评估、LLM Judge 评分及 Token/延迟/资源成本比较尚未开展。具体步骤、实验结果和未完成项见 `book/chapter3/用户记忆和知识库.md`。
+当前处于 Advanced JSON Cards 理论学习阶段，尚未学完，也未开展对应代码实现和实验。本轮已讨论 `backstory`、`person`、`relationship`、创建时间与事实时间、人物消歧、业务对象身份及来源忠实性；这些均为理论讨论，不代表功能已实现。曾提前预览 Contextual Retrieval，但不计为正式学习进度，当前不进入 RAG。后续先补齐 Advanced JSON Cards 理论并核对实验 3-2 对应步骤，再按书中顺序学习 User as Code、认知科学记忆分类、记忆框架、记忆压缩整理和隐私保护等用户记忆主题。具体已学内容、未完成事项及执行约束见 `book/chapter3/用户记忆和知识库.md`。60 个用例端到端评估、LLM Judge 评分及 Token/延迟/资源成本比较尚未开展。
 
 ### 当前工作分支
 
