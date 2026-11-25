@@ -363,6 +363,35 @@ if __name__ == "__main__":
     # 查看模型上下文，检查两张卡片是否都存在
     print("\n更新后的记忆上下文：")
     print(manager.get_context_string())
+    # ========================================================
+    # 验证：不完整卡片更新失败时，不能破坏原有记忆
+    # ========================================================
+
+    # 先备份两张卡片，包含管理元数据。
+    before_netflix = deepcopy(manager.categories["subscription"]["netflix"])
+    before_disney = deepcopy(manager.categories["subscription"]["disney_plus"])
+
+    try:
+        manager.update_memory(
+            memory_id=netflix_id,
+            content={
+                # 故意只传 value，缺少其他必需字段。
+                "card": {
+                    "value": "Incomplete Netflix memory"
+                }
+            },
+            session_id="session-003",
+        )
+    except ValueError as exc:
+        print("\n不完整卡片更新按预期失败：", exc)
+    else:
+        raise AssertionError("不完整卡片更新本应失败，但实际更新成功")
+
+    # 更新失败后，两张卡片都必须保持原样。
+    assert manager.categories["subscription"]["netflix"] == before_netflix
+    assert manager.categories["subscription"]["disney_plus"] == before_disney
+
+    print("验证通过：更新失败后，Netflix 和 Disney+ 均保持不变。")
     # 删除 Netflix 记忆
     manager.delete_memory(netflix_id)
     # 重新实例化管理器，检查持久化结果
