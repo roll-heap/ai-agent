@@ -128,7 +128,7 @@ def init_chat_model() -> Any:
     本实验使用 minicpm5-2b 这个 profile。
     实际模型名称以项目本地配置为准。
     """
-    model_key = settings.agent_model_map.get("qwen3_5-4b")
+    model_key = settings.agent_model_map.get("minicpm5-2b")
 
     if not model_key:
         raise ValueError(
