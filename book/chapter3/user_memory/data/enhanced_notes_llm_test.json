@@ -2,11 +2,11 @@
   "schema_version": 1,
   "notes": [
     {
-      "note_id": "7769caee-04e1-4b71-946e-c34c96b4bc6e",
-      "content": "用户目前在 A 公司担任 Java 架构师，主要负责订单系统。他同时管理一个 8 人的开发团队，该团队当前正在推进微服务改造工作。在技术选型方面，用户比较喜欢使用 Spring Boot。",
+      "note_id": "25550bca-720b-4c96-9953-7c32ba619e6c",
+      "content": "用户目前在 A 公司担任 Java 架构师，主要负责订单系统，并带领一支 8 人开发团队。团队目前正在推进微服务改造，在技术选型方面偏好使用 Spring Boot。",
       "session_id": "session-llm-enhanced",
-      "created_at": "2026-11-24T18:12:07.115331",
-      "updated_at": "2026-11-24T18:12:07.115331",
+      "created_at": "2026-11-25T13:38:35.554540",
+      "updated_at": "2026-11-25T13:38:35.554540",
       "tags": [
         "experiment_3_2_llm_enhanced",
         "career",

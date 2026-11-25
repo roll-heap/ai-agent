@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "notes": [
+    {
+      "note_id": "d20e95c1-57ae-47c0-9f34-7fda0b4dc099",
+      "content": "根据本次对话，以下是更新后的完整用户记忆：\n\n**用户：** Mark Johnson（丹尼斯·约翰逊先生）\n**邮箱：** markjohnson88@email.com\n**当前订阅：** Netflix Premium 计划，月费 $22.99\n**账单日期：** 每月 18 日下月 18 日到期\n**支付方式：** 已用卡号以 4782 结尾的 VISA 卡\n**原计划：** 2019 年起一直使用 Standard 计划，后于 2024 年 3 月 3 日升级至 Premium\n**家庭共享：** 女儿目前在读大学，需要使用家庭账户\n**额外成员：** 考虑是否需要为女儿添加额外成员（$7.99/月）\n**T-Mobile 优惠：** 用户询问是否可通过 T-Mobile 免费使用 Netflix，但 T-Mobile 仅覆盖 Standard with ads 计划，不支持 Premium 计划，因此用户决定继续直接付费订阅\n**关注点：** 下载功能、额外成员选项、账户验证流程",
+      "session_id": "netflix_support_001",
+      "created_at": "2026-11-25T13:39:47.204925",
+      "updated_at": "2026-11-25T13:39:47.204925",
+      "tags": [
+        "experiment_3_2_subscription"
+      ]
+    }
+  ]
+}
