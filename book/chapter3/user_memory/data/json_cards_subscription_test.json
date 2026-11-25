@@ -1,0 +1,178 @@
+{
+  "type": "json_cards",
+  "updated_at": "2026-11-25T14:20:07.280447",
+  "memory_cards": {
+    "account": {
+      "contact": {
+        "email": {
+          "value": "markjohnson88@email.com",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.262470"
+        }
+      },
+      "current_plan": {
+        "premium_plan": {
+          "value": "Premium plan at $22.99 per month",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.263717"
+        }
+      },
+      "billing": {
+        "billing_date": {
+          "value": "18th of each month; next billing is September 18th",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.264408"
+        },
+        "t_mobile_offer": {
+          "value": "T-Mobile covers Standard with ads, not Premium; Basic may be covered too",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.274152"
+        },
+        "t_mobile_consequences": {
+          "value": "Would lose 4K and ads unless downgraded; Premium not covered",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.274793"
+        }
+      },
+      "payment": {
+        "payment_method": {
+          "value": "Visa ending in 4782 (old card)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.264972"
+        },
+        "new_payment_method": {
+          "value": "User wants to update from Visa ending in 4782 to PayPal",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.265498"
+        }
+      },
+      "sharing": {
+        "password_sharing": {
+          "value": "Not permitted outside household; extra members required instead",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.271089"
+        },
+        "extra_member_fee": {
+          "value": "$7.99/month for each extra member",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.271798"
+        },
+        "account_verification": {
+          "value": "Requires verification code when streaming from different household; usually once a month",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.272497"
+        }
+      },
+      "features": {
+        "download_expiry": {
+          "value": "Most downloads expire after 7 days or 48 hours after starting to watch",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.273052"
+        },
+        "download_licensing": {
+          "value": "Due to licensing agreements; can re-download if internet available",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.273622"
+        }
+      },
+      "upgrade_history": {
+        "upgrade_date": {
+          "value": "Upgraded to Premium on March 3rd, 2024",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.277910"
+        },
+        "previous_plan": {
+          "value": "Had Standard since 2019",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.278539"
+        }
+      },
+      "upgrade_reason": {
+        "upgrade_reason": {
+          "value": "Upgraded for 4K quality for new TV",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.279173"
+        }
+      },
+      "family": {
+        "daughter_account": {
+          "value": "Daughter away at college; can be added as extra member ($7.99/month)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.279818"
+        }
+      },
+      "apps": {
+        "last_chance_section": {
+          "value": "User can check 'Last Chance' section in app for shows leaving soon",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.280432"
+        }
+      }
+    },
+    "plans": {
+      "pricing": {
+        "standard_plan": {
+          "value": "$15.49/month - HD quality, 2 screens, 2 download devices",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.266024"
+        },
+        "basic_plan": {
+          "value": "$6.99/month - HD quality, 2 screens, no downloads, ad-supported",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.266567"
+        },
+        "premium_plan": {
+          "value": "$22.99/month - 4K Ultra HD, 4 simultaneous screens, 6 download devices",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.267099"
+        },
+        "extra_member_monthly": {
+          "value": "$7.99/month per extra member",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.267638"
+        }
+      },
+      "comparison": {
+        "premium_plus_extra_member": {
+          "value": "$30.98 total ($22.99 + $7.99)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.268630"
+        },
+        "standard_plus_extra_member": {
+          "value": "$23.48 total ($15.49 + $7.99)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.269751"
+        },
+        "basic_plus_extra_member": {
+          "value": "$14.98 total ($6.99 + $7.99)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.270438"
+        }
+      }
+    },
+    "content": {
+      "shows": {
+        "the_office": {
+          "value": "Left Netflix in 2021, now on Peacock",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.275398"
+        },
+        "friends": {
+          "value": "Moved to HBO Max, now just Max",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.276035"
+        },
+        "the_crown": {
+          "value": "Concluded with Season 6; similar shows include The Empress",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.276637"
+        },
+        "recommendations": {
+          "value": "Wednesday, Stranger Things, The Crown (Season 6 concluded)",
+          "source": "netflix_support_001",
+          "updated_at": "2026-11-25T14:20:07.277264"
+        }
+      }
+    }
+  }
+}
