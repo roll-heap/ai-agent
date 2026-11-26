@@ -364,8 +364,7 @@ def generate_advanced_cards(
         cards：解析并校验后的卡片列表
     """
     conversation = format_conversation(messages)
-    response = model.invoke(
-        [
+    response = model.invoke([
         SystemMessage(content=ADVANCED_SYSTEM_PROMPT),
         HumanMessage(
             content=(
@@ -374,8 +373,7 @@ def generate_advanced_cards(
                 f"{conversation}\n"
                 "</conversation>"
             )
-        ),
-    ]
+        )]
     )
     # 保留原始模型输出，便于检查提取质量。
     generated_content = extract_text(response.content)
