@@ -1,0 +1,58 @@
+{
+  "type": "advanced_json_cards",
+  "updated_at": "2026-11-26T13:45:00.168889",
+  "categories": {
+    "profile": {
+      "user_name": {
+        "value": "用户的名字是王五",
+        "backstory": "用户主动告知自己的名字，后于本次会话中要求将名字由张三改为王五。",
+        "date_created": "2025-06-01 12:00:00",
+        "person": "王五",
+        "relationship": "本人",
+        "_metadata": {
+          "created_at": "2026-11-26T13:27:57.084887",
+          "updated_at": "2026-11-26T13:40:14.685563",
+          "source": "openrouter-session-b67eb28e"
+        }
+      },
+      "friend_li_si": {
+        "value": "用户的朋友名字是李四",
+        "backstory": "用户主动告知自己朋友的名字。",
+        "date_created": "2026-11-26 10:00:00",
+        "person": "李四",
+        "relationship": "朋友",
+        "_metadata": {
+          "created_at": "2026-11-26T13:31:52.649135",
+          "updated_at": "2026-11-26T13:31:52.649135",
+          "source": "openrouter-session-39894152"
+        }
+      },
+      "user_job": {
+        "value": "用户的职位是Java开发",
+        "backstory": "用户主动告知自己的职位是Java。",
+        "date_created": "2026-11-26 13:45:00",
+        "person": "王五",
+        "relationship": "本人",
+        "_metadata": {
+          "created_at": "2026-11-26T13:45:00.168608",
+          "updated_at": "2026-11-26T13:45:00.168608",
+          "source": "openrouter-session-0844ea4a"
+        }
+      }
+    },
+    "activity": {
+      "user_returned_in_afternoon": {
+        "value": "用户下午又回来了",
+        "backstory": "用户主动要求记住其下午又回来了；用户未提供具体日期和时间。",
+        "date_created": "2026-11-26 13:43:18",
+        "person": "王五",
+        "relationship": "本人",
+        "_metadata": {
+          "created_at": "2026-11-26T13:43:18.152744",
+          "updated_at": "2026-11-26T13:43:18.152744",
+          "source": "openrouter-session-560f7c91"
+        }
+      }
+    }
+  }
+}
