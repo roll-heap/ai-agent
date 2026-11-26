@@ -14,7 +14,6 @@
 - 记忆持久化
 """
 import json
-import os
 from typing import Any
 
 from openai import OpenAI
@@ -23,10 +22,10 @@ from openai import OpenAI
 # 一、模型配置
 # ============================================================
 #OpenRouter API Key
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY=""
 # OpenRouter 免费模型
-MODEL_NAME = ""
-BASE_URL = ""
+MODEL_NAME = "baidu/ernie-5.5-flash-preview:free"
+BASE_URL = "https://openrouter.ai/api/v1"
 
 
 # ============================================================
@@ -69,8 +68,8 @@ def init_chat_model() -> OpenAI:
     OpenRouter 提供 OpenAI 兼容接口，
     因此直接使用 OpenAI Python SDK。
     """
-    if not OPENROUTER_API_KEY:
-        raise ValueError("请设置 OPENROUTER_API_KEY 环境变量")
+    if not OPENROUTER_API_KEY or "替换为" in OPENROUTER_API_KEY:
+        raise ValueError("请在代码中配置真实的 OpenRouter API Key")
     client = OpenAI(
         api_key=OPENROUTER_API_KEY,
         base_url=BASE_URL,

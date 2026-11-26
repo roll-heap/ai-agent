@@ -15,7 +15,6 @@
 - 本实践使用非流式请求，简化 Tool Call 处理。
 """
 import json
-import os
 import uuid
 from pathlib import Path
 from typing import Any
@@ -25,10 +24,10 @@ from openai import OpenAI
 from book.chapter3.user_memory.advanced_json_card_memory_manager import AdvancedJsonCardMemoryManager
 
 #OpenRouter API Key
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY=""
 # OpenRouter 免费模型
-MODEL_NAME = ""
-BASE_URL = ""
+MODEL_NAME = "baidu/ernie-5.5-flash-preview:free"
+BASE_URL = "https://openrouter.ai/api/v1"
 
 MAX_TURNS = 6
 SESSION_ID=f"openrouter-session-{uuid.uuid4().hex[:8]}"
@@ -199,8 +198,6 @@ content 参数必须是合法 JSON 字符串。
 # 四、模型初始化
 # ============================================================
 def init_chat_model() -> OpenAI:
-    if not OPENROUTER_API_KEY:
-        raise ValueError("请设置 OPENROUTER_API_KEY 环境变量")
     client = OpenAI(
         api_key=OPENROUTER_API_KEY,
         base_url=BASE_URL,
