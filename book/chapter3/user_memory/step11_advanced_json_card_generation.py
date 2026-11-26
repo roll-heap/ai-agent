@@ -166,26 +166,18 @@ def init_chat_model() -> Any:
     本实验使用 minicpm5-2b 这个 profile。
     实际模型名称以项目本地配置为准。
     """
-    model_key = settings.agent_model_map.get("minicpm5-2b")
-
+    model_key = settings.agent_model_map.get("qwen3.5:4b")
     if not model_key:
-        raise ValueError(
-            "项目配置中未找到 minicpm5-2b 对应的模型映射"
-        )
-
+        raise ValueError("项目配置中未找到 minicpm5-2b 对应的模型映射")
     profile_factory = ProfileFactory(settings)
-
     model_config, connection_config = (
         profile_factory.get_model_configs(model_key)
     )
-
     model = Agent.init_model(
         model_config=model_config,
         connection_config=connection_config,
     )
-
     print(f"当前实验模型：{model_config.model_name}")
-
     return model
 
 
@@ -199,33 +191,20 @@ def format_conversation(
     """
     将结构化历史消息转换为模型可读的文本。
     """
-    role_mapping = {
-        "user": "用户",
-        "assistant": "助手",
-    }
-
+    role_mapping = {"user": "用户","assistant": "助手"}
     conversation_lines = []
-
     for message in messages:
         role = message.get("role")
         content = message.get("content")
-
         # 忽略当前实验不支持的角色。
         if role not in role_mapping:
             continue
-
         if not isinstance(content, str):
             raise ValueError("历史对话内容必须是字符串")
-
-        conversation_lines.append(
-            f"{role_mapping[role]}: {content}"
-        )
-
+        conversation_lines.append(f"{role_mapping[role]}: {content}")
     conversation = "\n".join(conversation_lines)
-
     if not conversation.strip():
         raise ValueError("历史对话不能为空")
-
     return conversation
 
 
@@ -267,84 +246,45 @@ def validate_advanced_cards(
         raise ValueError("模型返回结果必须是 JSON 对象或数组")
     required_fields = {"category", "card_key", "card"}
     required_card_fields = {"value", "backstory", "person", "relationship"}
-
     for index, item in enumerate(cards):
-
         if not isinstance(item, dict):
-            raise ValueError(
-                f"第 {index + 1} 张记忆必须是 JSON 对象"
-            )
-
+            raise ValueError(f"第 {index + 1} 张记忆必须是 JSON 对象")
         # 校验外层字段。
         missing_fields = required_fields - item.keys()
-
         if missing_fields:
-            raise ValueError(
-                f"第 {index + 1} 张记忆缺少字段："
-                f"{sorted(missing_fields)}"
-            )
-
+            raise ValueError(f"第 {index + 1} 张记忆缺少字段：{sorted(missing_fields)}")
         for field in ("category", "card_key"):
             value = item[field]
-
             if not isinstance(value, str) or not value.strip():
-                raise ValueError(
-                    f"第 {index + 1} 张记忆的 "
-                    f"{field} 必须是非空字符串"
-                )
-
+                raise ValueError(f"第 {index + 1} 张记忆的 {field} 必须是非空字符串")
         # 校验内部卡片。
         card = item["card"]
-
         if not isinstance(card, dict):
-            raise ValueError(
-                f"第 {index + 1} 张记忆的 card 必须是 JSON 对象"
-            )
-
-        missing_card_fields = (
-                required_card_fields - card.keys()
-        )
-
+            raise ValueError(f"第 {index + 1} 张记忆的 card 必须是 JSON 对象")
+        missing_card_fields = required_card_fields - card.keys()
         if missing_card_fields:
-            raise ValueError(
-                f"第 {index + 1} 张记忆的 card 缺少字段："
-                f"{sorted(missing_card_fields)}"
-            )
-
+            raise ValueError(f"第 {index + 1} 张记忆的 card 缺少字段：{sorted(missing_card_fields)}")
         # value 必须是非空字符串。
         if (
                 not isinstance(card["value"], str)
                 or not card["value"].strip()
         ):
-            raise ValueError(
-                f"第 {index + 1} 张记忆的 value 必须是非空字符串"
-            )
-
+            raise ValueError(f"第 {index + 1} 张记忆的 value 必须是非空字符串")
         # backstory 允许空字符串，但必须是字符串。
         if not isinstance(card["backstory"], str):
             raise ValueError(
                 f"第 {index + 1} 张记忆的 backstory 必须是字符串"
             )
-
         # person 和 relationship 必须是非空字符串。
         for field in ("person", "relationship"):
             value = card[field]
-
             if not isinstance(value, str) or not value.strip():
-                raise ValueError(
-                    f"第 {index + 1} 张记忆的 "
-                    f"{field} 必须是非空字符串"
-                )
-
+                raise ValueError(f"第 {index + 1} 张记忆的 {field} 必须是非空字符串")
         # 确保模型返回内容能够被 JSON 序列化。
         try:
             json.dumps(item, ensure_ascii=False)
-
         except (TypeError, ValueError) as exc:
-            raise ValueError(
-                f"第 {index + 1} 张记忆包含不可 JSON 序列化的数据"
-            ) from exc
-
+            raise ValueError(f"第 {index + 1} 张记忆包含不可 JSON 序列化的数据") from exc
     return cards
 
 
@@ -352,10 +292,7 @@ def validate_advanced_cards(
 # 七、LLM 生成 Advanced JSON Cards
 # ============================================================
 
-def generate_advanced_cards(
-        model: Any,
-        messages: list[dict[str, str]],
-) -> tuple[str, list[dict[str, Any]]]:
+def generate_advanced_cards(model: Any,messages: list[dict[str, str]]) -> tuple[str, list[dict[str, Any]]]:
     """
     调用模型生成 Advanced JSON Cards。
 
@@ -382,14 +319,11 @@ def generate_advanced_cards(
     # 解析模型返回的 JSON。
     try:
         # cards = json.loads(generated_content)
-
         # 清理模型可能输出的 Markdown JSON 代码围栏
         generated_content = generated_content.strip()
-
         if generated_content.startswith("```"):
             generated_content = generated_content.split("\n", 1)[1]
             generated_content = generated_content.rsplit("```", 1)[0].strip()
-
         cards = json.loads(generated_content)
     except json.JSONDecodeError as exc:
         raise ValueError(f"模型返回的内容不是合法 JSON：{generated_content}") from exc
