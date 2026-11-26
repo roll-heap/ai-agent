@@ -69,7 +69,7 @@ class AdvancedJsonCardMemoryManager(BaseMemoryManager):
         now = datetime.now()
         # 以下默认值与书籍配套 AdvancedJSONMemoryManager 保持一致。
         result.setdefault("backstory", "")
-        result.setdefault("date_created", now.strftime("%Y-%m-%d %H:%M:%S"))
+        result["date_created"]=now.strftime("%Y-%m-%d %H:%M:%S")
         result.setdefault("person", "Unknown")
         result.setdefault("relationship", "primary account holder")
         # 内部元数据不作为用户事实内容。
