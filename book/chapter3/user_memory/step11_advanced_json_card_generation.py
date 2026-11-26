@@ -1,4 +1,3 @@
-
 """
 实验 3-2：使用 LLM 自动生成 Advanced JSON Cards
 
@@ -25,7 +24,6 @@ from agent.init import Agent
 from agent.profile import ProfileFactory
 from config import settings
 
-
 # ============================================================
 # 一、实验数据
 # ============================================================
@@ -47,80 +45,90 @@ SAMPLE_CONVERSATION = [
     },
 ]
 
-
 # ============================================================
 # 二、Advanced JSON Cards Prompt
 # ============================================================
 ADVANCED_SYSTEM_PROMPT = """
-    你是一个用户长期记忆管理助手。
+    你是一个用户记忆卡片生成助手。你的任务是根据用户提供的记忆内容，提取并生成结构化的 Advanced JSON Cards。
 
-    你的任务是分析用户对话和已有记忆，
-    使用工具维护 Advanced JSON Cards。
+    ## 一、任务目标
 
-    ## 一、记忆卡片结构
+    将用户提供的记忆内容整理为一个或多个记忆卡片。
 
-    每张记忆卡片包含：
+    每张卡片应当：
+    1. 准确表达用户记忆中的事实。
+    2. 保留重要的背景信息和上下文。
+    3. 明确记忆涉及的人物及其关系。
+    4. 避免重复、臆测或添加用户未提供的信息。
+    5. 根据记忆内容选择合适的分类和唯一标识。
 
-    - category：记忆分类
-    - card_key：分类下的卡片标识
-    - card：完整记忆卡片对象
+    ## 二、输出格式
 
-    卡片中必须包含：
+    必须输出一个合法的 JSON 数组。
 
-    - value：具体事实
-    - backstory：事实的来源背景和必要上下文
-    - date_created：卡片创建时间，格式 YYYY-MM-DD HH:MM:SS
-    - person：事实涉及的人物
-    - relationship：人物与用户之间的关系
+    每个数组元素代表一个记忆分类，包含以下字段：
 
-    可以根据事实类型增加其他有依据的字段。
+    - category：记忆分类名称。
+    - card_key：该分类下记忆卡片的唯一标识。
+    - card：记忆卡片内容。
 
-    ## 二、操作规则
+    card 必须包含以下字段：
 
-    1. 新事实使用 add_memory。
-    2. 已有事实发生变化时，使用 update_memory。
-    3. 已有事实不再有效或错误时，必要时使用 delete_memory。
-    4. 更新时必须提供完整卡片，不能只提供变化字段。
-    5. 不得根据常识推测用户没有表达的信息。
-    6. backstory 只能记录对话明确支持的来源背景。
-    7. person 表示事实涉及的人物，不要与 relationship 混淆。
-    8. 不要因为新事实出现就无依据地删除其他卡片。
-    9. 操作前检查已有记忆，避免重复新增。
-    10. 完成记忆操作后停止，不要输出无关内容。
+    - value：记忆的核心内容，简洁、准确地描述事实。
+    - backstory：记忆的背景信息和上下文。
+    - person：记忆涉及的人物；没有明确人物时使用空数组。
+    - relationship：记忆涉及的人物关系；没有明确关系时使用空数组。
 
-    ## 三、工具参数
+    ## 三、生成规则
 
-    add_memory：
-    content 是 JSON 字符串，结构为：
-    {
-      "category": "...",
-      "card_key": "...",
-      "card": {
-        "value": "...",
-        "backstory": "...",
-        "date_created": "...",
-        "person": "...",
-        "relationship": "..."
+    1. 只能依据用户提供的信息生成记忆，不得编造事实。
+    2. 将语义相关的内容归纳到同一张卡片，避免不必要的拆分。
+    3. 不同主题的记忆应分别归类。
+    4. category 应当能够准确概括记忆主题。
+    5. card_key 应使用简洁、稳定、具有可读性的英文标识。
+    6. value 应突出记忆中最重要的信息。
+    7. backstory 用于补充背景，不要简单重复 value。
+    8. person 和 relationship 必须使用 JSON 数组。
+    9. 如果某个字段没有足够的信息，按照字段类型使用空字符串或空数组。
+    10. 不得将推测内容作为确定事实输出。
+
+    ## 四、JSON 格式约束
+
+    1. 只能输出合法 JSON，不得输出 XML。
+    2. 不得输出 Markdown 代码块。
+    3. 不得输出 JSON 之外的解释、说明或其他文本。
+    4. 所有字符串必须使用双引号。
+    5. 不得使用注释。
+    6. 不得在最后一个字段后添加多余逗号。
+    7. 必须保证 JSON 可以被标准 JSON 解析器解析。
+    8. 输出必须是 JSON 数组，即使只有一张卡片也必须使用数组格式。
+
+    ## 五、输出示例
+
+    [
+      {
+        "category": "personal_preferences",
+        "card_key": "communication_style",
+        "card": {
+          "value": "用户偏好简洁、直接的技术交流方式。",
+          "backstory": "用户希望减少无关解释和重复内容，优先获得必要的技术依据和关键细节。",
+          "person": [],
+          "relationship": []
+        }
+      },
+      {
+        "category": "work_experience",
+        "card_key": "java_architect",
+        "card": {
+          "value": "用户是一名 Java 资深工程师。",
+          "backstory": "用户具备 Python 基础，希望学习 AI Agent 的设计、开发和维护。",
+          "person": [],
+          "relationship": []
+        }
       }
-    }
+    ]
 
-    update_memory：
-    memory_id 是已有记忆 ID。
-    content 是 JSON 字符串，结构为：
-    {
-      "card": {
-        "value": "...",
-        "backstory": "...",
-        "date_created": "...",
-        "person": "...",
-        "relationship": "..."
-      }
-    }
-
-    delete_memory：
-    memory_id 是已有记忆 ID。
-
-    所有工具参数必须符合 JSON 格式。
+    现在请根据用户提供的记忆内容生成 Advanced JSON Cards。
     """
 
 
@@ -166,7 +174,7 @@ def init_chat_model() -> Any:
 # ============================================================
 
 def format_conversation(
-    messages: list[dict[str, str]],
+        messages: list[dict[str, str]],
 ) -> str:
     """
     将结构化历史消息转换为模型可读的文本。
@@ -204,29 +212,19 @@ def format_conversation(
 # ============================================================
 # 五、模型返回内容提取
 # ============================================================
-
 def extract_text(content: Any) -> str:
-    """
-    兼容 LangChain 返回的字符串和内容块列表。
-    """
     if isinstance(content, str):
         return content.strip()
-
     if isinstance(content, list):
         text_parts = []
-
         for block in content:
             if isinstance(block, str):
                 text_parts.append(block)
-
             elif isinstance(block, dict):
                 text_value = block.get("text")
-
                 if isinstance(text_value, str):
                     text_parts.append(text_value)
-
         return "\n".join(text_parts).strip()
-
     raise ValueError("模型返回了不支持的内容类型")
 
 
@@ -235,34 +233,20 @@ def extract_text(content: Any) -> str:
 # ============================================================
 
 def validate_advanced_cards(
-    cards: Any,
+        cards: Any,
 ) -> list[dict[str, Any]]:
     """
     校验模型生成的 Advanced JSON Cards。
-
     注意：
     这里只验证数据结构，不验证模型提取的事实是否真实。
     """
-
     # 单个对象统一转换为列表。
     if isinstance(cards, dict):
         cards = [cards]
-
     if not isinstance(cards, list):
         raise ValueError("模型返回结果必须是 JSON 对象或数组")
-
-    required_fields = {
-        "category",
-        "card_key",
-        "card",
-    }
-
-    required_card_fields = {
-        "value",
-        "backstory",
-        "person",
-        "relationship",
-    }
+    required_fields = {"category", "card_key", "card"}
+    required_card_fields = {"value", "backstory", "person", "relationship"}
 
     for index, item in enumerate(cards):
 
@@ -298,7 +282,7 @@ def validate_advanced_cards(
             )
 
         missing_card_fields = (
-            required_card_fields - card.keys()
+                required_card_fields - card.keys()
         )
 
         if missing_card_fields:
@@ -309,8 +293,8 @@ def validate_advanced_cards(
 
         # value 必须是非空字符串。
         if (
-            not isinstance(card["value"], str)
-            or not card["value"].strip()
+                not isinstance(card["value"], str)
+                or not card["value"].strip()
         ):
             raise ValueError(
                 f"第 {index + 1} 张记忆的 value 必须是非空字符串"
@@ -349,8 +333,8 @@ def validate_advanced_cards(
 # ============================================================
 
 def generate_advanced_cards(
-    model: Any,
-    messages: list[dict[str, str]],
+        model: Any,
+        messages: list[dict[str, str]],
 ) -> tuple[str, list[dict[str, Any]]]:
     """
     调用模型生成 Advanced JSON Cards。
@@ -359,42 +343,40 @@ def generate_advanced_cards(
         generated_content：模型原始文本
         cards：解析并校验后的卡片列表
     """
-
     conversation = format_conversation(messages)
-
     response = model.invoke(
         [
-            SystemMessage(content=ADVANCED_SYSTEM_PROMPT),
-            HumanMessage(
-                content=(
-                    "请根据下面的历史对话提取 Advanced JSON Cards。\n\n"
-                    "<conversation>\n"
-                    f"{conversation}\n"
-                    "</conversation>"
-                )
-            ),
-        ]
+        SystemMessage(content=ADVANCED_SYSTEM_PROMPT),
+        HumanMessage(
+            content=(
+                "请根据下面的历史对话提取 Advanced JSON Cards。\n\n"
+                "<conversation>\n"
+                f"{conversation}\n"
+                "</conversation>"
+            )
+        ),
+    ]
     )
-
     # 保留原始模型输出，便于检查提取质量。
     generated_content = extract_text(response.content)
-
     if not generated_content:
         raise ValueError("模型返回的记忆内容为空")
-
     # 解析模型返回的 JSON。
     try:
+        # cards = json.loads(generated_content)
+
+        # 清理模型可能输出的 Markdown JSON 代码围栏
+        generated_content = generated_content.strip()
+
+        if generated_content.startswith("```"):
+            generated_content = generated_content.split("\n", 1)[1]
+            generated_content = generated_content.rsplit("```", 1)[0].strip()
+
         cards = json.loads(generated_content)
-
     except json.JSONDecodeError as exc:
-        raise ValueError(
-            "模型返回的内容不是合法 JSON："
-            f"{generated_content}"
-        ) from exc
-
+        raise ValueError(f"模型返回的内容不是合法 JSON：{generated_content}") from exc
     # 校验结构。
     validated_cards = validate_advanced_cards(cards)
-
     return generated_content, validated_cards
 
 
@@ -406,29 +388,20 @@ def main() -> None:
     """
     执行一次 Advanced JSON Cards 生成实验。
     """
-
     # 1. 初始化模型。
     model = init_chat_model()
-
     # 2. 调用模型生成记忆。
     raw_output, cards = generate_advanced_cards(
         model=model,
         messages=SAMPLE_CONVERSATION,
     )
-
     # 3. 输出模型原始结果。
     print("\n========== 模型原始输出 ==========")
     print(raw_output)
 
     # 4. 输出结构校验结果。
     print("\n========== 校验后的 Advanced JSON Cards ==========")
-    print(
-        json.dumps(
-            cards,
-            ensure_ascii=False,
-            indent=2,
-        )
-    )
+    print(json.dumps(cards,ensure_ascii=False,indent=2))
 
     print("\n========== 实验结果 ==========")
     print(f"生成卡片数量：{len(cards)}")
