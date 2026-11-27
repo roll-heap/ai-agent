@@ -1,9 +1,13 @@
 """
+memobase  安装目录:/Users/wwzhong/memobase
+
 技术栈：memobase 服务   LLM qwen2.5:3b  PostgreSQL:17g
 docker运行： memobase 服务，PostgreSQL，redis
 说明：
 执行到这里的时候 user.flush(sync=True)
 memobase会调用LLM进行记忆提取，然后保存记忆，执行redis，PostgreSQL
+
+
 """
 import time
 import uuid
