@@ -19,12 +19,13 @@ AGENT_ID="mem0_local_demo"
 # Mem0本地配置：Ollama + chroma
 mem0_config={
     "llm":{
-        "provider":"ollama",
+        "provider":"openai",
         "config":{
-            "model":"qwen2.5:3b",
+            "model":"gpt-6-astra",
             "temperature":0.1,
             "max_tokens":2000,
-            "ollama_base_url":"http://localhost:11434"
+            "openai_base_url":"",
+            "api_key":""
         }
     },
     "embedder":{
@@ -47,27 +48,27 @@ mem0_config={
 def main():
     # 1、初始化记忆系统
     memory = Memory.from_config(mem0_config)
-    original_generate_response = memory.llm.generate_response
-
-    def debug_generate_response(*args, **kwargs):
-        print("\n========== Mem0 LLM 请求 ==========")
-
-        print("Response Format:")
-        print(kwargs.get("response_format"))
-
-        print("\nUser Prompt:")
-        for message in kwargs.get("messages", []):
-            if message["role"] == "user":
-                print(message["content"])
-
-        result = original_generate_response(*args, **kwargs)
-
-        print("\n========== Mem0 LLM 原始响应 ==========")
-        print(repr(result))
-
-        return result
-
-    memory.llm.generate_response = debug_generate_response
+    # original_generate_response = memory.llm.generate_response
+    #
+    # def debug_generate_response(*args, **kwargs):
+    #     print("\n========== Mem0 LLM 请求 ==========")
+    #
+    #     print("Response Format:")
+    #     print(kwargs.get("response_format"))
+    #
+    #     print("\nUser Prompt:")
+    #     for message in kwargs.get("messages", []):
+    #         if message["role"] == "user":
+    #             print(message["content"])
+    #
+    #     result = original_generate_response(*args, **kwargs)
+    #
+    #     print("\n========== Mem0 LLM 原始响应 ==========")
+    #     print(repr(result))
+    #
+    #     return result
+    #
+    # memory.llm.generate_response = debug_generate_response
 
     print(memory)
     # 2、添加用户记忆
