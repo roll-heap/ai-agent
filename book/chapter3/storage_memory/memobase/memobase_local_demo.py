@@ -1,8 +1,14 @@
+"""
+技术栈：memobase 服务   LLM qwen2.5:3b  PostgreSQL:17g
+docker运行： memobase 服务，PostgreSQL，redis
+说明：
+执行到这里的时候 user.flush(sync=True)
+memobase会调用LLM进行记忆提取，然后保存记忆，执行redis，PostgreSQL
+"""
 import time
 import uuid
 import httpx
 from memobase import MemoBaseClient, ChatBlob
-
 
 def clear_user_memory(user):
     """删除指定用户的全部 Profile 和 Event，保留用户账号。"""
