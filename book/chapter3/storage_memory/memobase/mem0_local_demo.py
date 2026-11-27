@@ -14,7 +14,7 @@ import json
 from mem0 import Memory
 
 
-USER_ID = "java_architect_demo1111"
+USER_ID = "java_architect_demo"
 AGENT_ID="mem0_local_demo"
 # Mem0本地配置：Ollama + chroma
 mem0_config={
@@ -47,6 +47,28 @@ mem0_config={
 def main():
     # 1、初始化记忆系统
     memory = Memory.from_config(mem0_config)
+    original_generate_response = memory.llm.generate_response
+
+    def debug_generate_response(*args, **kwargs):
+        print("\n========== Mem0 LLM 请求 ==========")
+
+        print("Response Format:")
+        print(kwargs.get("response_format"))
+
+        print("\nUser Prompt:")
+        for message in kwargs.get("messages", []):
+            if message["role"] == "user":
+                print(message["content"])
+
+        result = original_generate_response(*args, **kwargs)
+
+        print("\n========== Mem0 LLM 原始响应 ==========")
+        print(repr(result))
+
+        return result
+
+    memory.llm.generate_response = debug_generate_response
+
     print(memory)
     # 2、添加用户记忆
     messages = [
@@ -57,7 +79,7 @@ def main():
     ]
 
     # infer=False 先跳过LLM提取记忆
-    add_result = memory.add(messages, user_id=USER_ID, agent_id=AGENT_ID, infer=False)
+    add_result = memory.add(messages, user_id=USER_ID, agent_id=AGENT_ID)
 
     print("\n记忆添加结果：")
     print(json.dumps(add_result, ensure_ascii=False, indent=2, default=str))
@@ -74,43 +96,4 @@ def main():
     print(json.dumps(search_result, ensure_ascii=False, indent=2, default=str))
 
 if __name__=="__main__":
-    # main()
-
-    import ollama
-
-    client = ollama.Client(host="http://localhost:11434")
-
-    response = client.chat(
-        model="qwen2.5:3b",
-        messages=[
-            {
-                "role": "user",
-                "content": "记住：用户是一名Java资深工程师，正在学习AI Agent。"
-            }
-        ],
-        tools=[
-            {
-                "type": "function",
-                "function": {
-                    "name": "add_memory",
-                    "description": "保存一条用户记忆",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "memory": {
-                                "type": "string",
-                                "description": "需要保存的记忆内容"
-                            }
-                        },
-                        "required": ["memory"]
-                    }
-                }
-            }
-        ],
-    )
-
-    print("模型回复：")
-    print(response.message)
-
-    print("\n工具调用：")
-    print(response.message.tool_calls)
+    main()
