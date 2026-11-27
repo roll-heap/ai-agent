@@ -15,4 +15,5 @@ dependencies:
   - pytest
   - langchain-ollama
   - transformers
+  - httpx
 prefix: /opt/homebrew/Caskroom/miniconda/base/envs/ai-agent

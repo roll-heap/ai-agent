@@ -163,12 +163,12 @@ def init_chat_model() -> Any:
     agent_model_map:
         profile_name -> model_config_key
 
-    本实验使用 minicpm5-2b 这个 profile。
+    本实验使用 qwen3.5:4b 这个 profile。
     实际模型名称以项目本地配置为准。
     """
     model_key = settings.agent_model_map.get("qwen3.5:4b")
     if not model_key:
-        raise ValueError("项目配置中未找到 minicpm5-2b 对应的模型映射")
+        raise ValueError("项目配置中未找到 qwen3.5:4b 对应的模型映射")
     profile_factory = ProfileFactory(settings)
     model_config, connection_config = (
         profile_factory.get_model_configs(model_key)
